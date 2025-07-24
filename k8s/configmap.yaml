@@ -18,10 +18,14 @@ data:
           connection-timeout: 30000
           maximum-pool-size: 10
       azure:
-        eventhubs:
-          connection-string: ${EVENTHUB_CONNECTION_STRING}
-          event-hub-name: product-events
-          consumer-group: product-service-group
+        eventhub:
+          producer:
+            connection-string: ${PRODUCT_EVENTHUB_CONNECTION_STRING}
+            name: product-events
+          consumer:
+            connection-string: ${USER_EVENTHUB_CONNECTION_STRING}
+            name: user-events
+            consumer-group: product-service-group
       security:
         oauth2:
           resourceserver:

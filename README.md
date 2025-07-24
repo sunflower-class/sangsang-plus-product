@@ -71,7 +71,8 @@
 | `JWT_ISSUER_URI` | JWT 발행자 URI | `https://oauth.buildingbite.com` |
 | `JWT_JWK_SET_URI` | JWT 공개키 세트 URI | `https://oauth.buildingbite.com/.well-known/jwks.json` |
 | `JWT_SECRET` | JWT 서명 키 | `your-secret-key-for-jwt-token-must-be-at-least-256-bits` |
-| `EVENTHUB_CONNECTION_STRING` | Azure Event Hubs 연결 문자열 | - |
+| `PRODUCT_EVENTHUB_CONNECTION_STRING` | 상품 이벤트 발행용 Event Hubs 연결 문자열 | - |
+| `USER_EVENTHUB_CONNECTION_STRING` | 유저 이벤트 수신용 Event Hubs 연결 문자열 | - |
 
 ## 🏗️ 개발 환경 구축
 
@@ -108,6 +109,10 @@ export DB_HOST=sangsangplus-postgre-server.postgres.database.azure.com
 export DB_USERNAME=sangsangplus_admin
 export DB_PASSWORD=your_password
 
+# Event Hubs 연결 정보 설정
+export PRODUCT_EVENTHUB_CONNECTION_STRING="Endpoint=sb://sangsangplus-eventhubs.servicebus.windows.net/;SharedAccessKeyName=ProductProducerKey;SharedAccessKey=your_key;EntityPath=product-events"
+export USER_EVENTHUB_CONNECTION_STRING="Endpoint=sb://sangsangplus-eventhubs.servicebus.windows.net/;SharedAccessKeyName=UserConsumerKey;SharedAccessKey=your_key;EntityPath=user-events"
+
 # 애플리케이션 실행
 mvn spring-boot:run
 ```
@@ -123,6 +128,8 @@ docker run -p 8082:8082 \
   -e DB_HOST=your_db_host \
   -e DB_USERNAME=your_db_user \
   -e DB_PASSWORD=your_db_password \
+  -e PRODUCT_EVENTHUB_CONNECTION_STRING="your_product_eventhub_connection" \
+  -e USER_EVENTHUB_CONNECTION_STRING="your_user_eventhub_connection" \
   sangsangplus-product
 ```
 

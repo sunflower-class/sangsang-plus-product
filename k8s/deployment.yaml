@@ -34,8 +34,10 @@ spec:
             secretKeyRef:
               name: product-service-secret
               key: db-password
-        - name: EVENTHUB_CONNECTION_STRING
+        - name: PRODUCT_EVENTHUB_CONNECTION_STRING
           value: "Endpoint=sb://sangsangplus-eventhubs.servicebus.windows.net/;SharedAccessKeyName=ProductProducerKey;SharedAccessKey=/vg3jpxHFMdRPpuSGlya7nHBphlbzCRwt+AEhFV6Q2M=;EntityPath=product-events"
+        - name: USER_EVENTHUB_CONNECTION_STRING
+          value: "Endpoint=sb://sangsangplus-eventhubs.servicebus.windows.net/;SharedAccessKeyName=UserConsumerKey;SharedAccessKey=ZPRtTjEQZ9Wi4VoKiyNeViYVjvMvtBHdG+AEhCTFjGI=;EntityPath=user-events"
         resources:
           requests:
             memory: "512Mi"
