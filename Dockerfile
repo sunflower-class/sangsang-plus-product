@@ -1,14 +1,16 @@
-FROM openjdk:17-jdk-slim AS build
-WORKDIR /app
-COPY pom.xml .
-COPY src ./src
-COPY .mvn .mvn
-COPY mvnw .
-RUN chmod +x mvnw
-RUN ./mvnw clean package -DskipTests
-
 FROM openjdk:17-jdk-slim
 WORKDIR /app
-COPY --from=build /app/target/product-service-1.0.0.jar app.jar
+
+# Install Maven
+RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
+
+# Copy source code
+COPY pom.xml .
+COPY src ./src
+
+# Build the application
+RUN mvn clean package -DskipTests
+
+# Run the application
 EXPOSE 8082
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "target/product-service-1.0.0.jar"]

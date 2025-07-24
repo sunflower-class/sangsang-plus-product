@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: product-service-config
-  namespace: sangsangplus
+  namespace: product-service
 data:
   application.yml: |
     spring:
@@ -11,11 +11,17 @@ data:
       application:
         name: product-service
       datasource:
-        url: jdbc:postgresql://postgres-service:5432/productdb
-        username: postgres
-        password: postgres
-      kafka:
-        bootstrap-servers: kafka-service:9092
+        url: jdbc:postgresql://sangsangplus-postgre-server.postgres.database.azure.com:5432/product_db?sslmode=require
+        username: ${DB_USERNAME}
+        password: ${DB_PASSWORD}
+        hikari:
+          connection-timeout: 30000
+          maximum-pool-size: 10
+      azure:
+        eventhubs:
+          connection-string: ${EVENTHUB_CONNECTION_STRING}
+          event-hub-name: product-events
+          consumer-group: product-service-group
       security:
         oauth2:
           resourceserver:
@@ -28,6 +34,4 @@ data:
     
     eureka:
       client:
-        service-url:
-          defaultZone: http://eureka-service:8761/eureka/
-        enabled: true
+        enabled: false

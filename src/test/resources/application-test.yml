@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: product-service-test
+  
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 5
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+    show-sql: true
+
+  h2:
+    console:
+      enabled: true
+
+  sql:
+    init:
+      mode: never
+
+# JWT Configuration for testing
+jwt:
+  secret: test-secret-key-for-jwt-token-must-be-at-least-256-bits-for-testing
+
+logging:
+  level:
+    com.sangsangplus.productservice: DEBUG
+    org.springframework.web: DEBUG

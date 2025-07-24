@@ -3,10 +3,13 @@ spring:
     name: product-service
   
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:productdb}
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:postgres}
+    url: jdbc:postgresql://${DB_HOST:sangsangplus-postgre-server.postgres.database.azure.com}:${DB_PORT:5432}/${DB_NAME:product_db}?sslmode=require
+    username: ${DB_USERNAME:sangsangplus_admin}
+    password: ${DB_PASSWORD:ekdma1443!}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 10
   
   jpa:
     hibernate:
@@ -17,16 +20,10 @@ spring:
         format_sql: true
     show-sql: false
   
-  kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
-    consumer:
-      group-id: product-service-group
-      auto-offset-reset: latest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+azure:
+  eventhub:
+    connection-string: ${EVENTHUB_CONNECTION_STRING:Endpoint=sb://sangsangplus-eventhubs.servicebus.windows.net/;SharedAccessKeyName=ProductProducerKey;SharedAccessKey=/vg3jpxHFMdRPpuSGlya7nHBphlbzCRwt+AEhFV6Q2M=;EntityPath=product-events}
+    name: product-events
   
   cache:
     type: simple
@@ -36,22 +33,19 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${JWT_ISSUER_URI:http://localhost:8080}
-          jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:8080/.well-known/jwks.json}
+          issuer-uri: ${JWT_ISSUER_URI:https://oauth.buildingbite.com}
+          jwk-set-uri: ${JWT_JWK_SET_URI:https://oauth.buildingbite.com/.well-known/jwks.json}
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:your-secret-key-for-jwt-token-must-be-at-least-256-bits}
 
 server:
   port: 8082
-  servlet:
-    context-path: /product-service
 
 eureka:
   client:
-    service-url:
-      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
-    enabled: ${EUREKA_ENABLED:true}
-  instance:
-    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
-    prefer-ip-address: true
+    enabled: false
 
 management:
   endpoints:
@@ -65,8 +59,7 @@ management:
 logging:
   level:
     com.sangsangplus.productservice: DEBUG
-    org.springframework.kafka: INFO
-    org.apache.kafka: INFO
+    com.azure.messaging.eventhubs: INFO
 
 # Saga Configuration
 saga:
