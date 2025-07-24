@@ -144,10 +144,11 @@ az aks get-credentials --resource-group your-rg --name your-cluster
 # 네임스페이스 생성
 kubectl apply -f k8s/namespace.yaml
 
-# Secret 설정 (DB 접속 정보)
+# Secret 설정 (DB 접속 정보 및 JWT)
 kubectl create secret generic product-service-secret \
   --from-literal=db-username=sangsangplus_admin \
   --from-literal=db-password=your_password \
+  --from-literal=jwt-secret=YOUR_JWT_SECRET_HERE \
   -n product-service
 
 # 전체 리소스 배포

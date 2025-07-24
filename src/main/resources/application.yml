@@ -45,7 +45,7 @@ azure:
 
 # JWT Configuration
 jwt:
-  secret: ${JWT_SECRET:your-secret-key-for-jwt-token-must-be-at-least-256-bits}
+  secret: ${JWT_SECRET:VQotLXWvspUdoagFs2jmViXH0gJX4jEIe85KIoFODCE=}
 
 server:
   port: 8082
