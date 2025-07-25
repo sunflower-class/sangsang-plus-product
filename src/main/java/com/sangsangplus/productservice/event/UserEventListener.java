@@ -38,12 +38,13 @@ public class UserEventListener {
         
         CompletableFuture.runAsync(() -> {
             try {
-                eventHubConsumerClient.receiveFromPartition("0", 100, EventPosition.latest())
-                    .subscribe(partitionEvent -> {
+                while (isRunning) {
+                    for (PartitionEvent partitionEvent : eventHubConsumerClient.receiveFromPartition("0", 100, EventPosition.latest(), Duration.ofSeconds(5))) {
                         if (isRunning) {
                             handleEvent(partitionEvent);
                         }
-                    });
+                    }
+                }
             } catch (Exception e) {
                 logger.error("Error in User Event Listener", e);
             }
