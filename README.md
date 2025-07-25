@@ -182,8 +182,20 @@ curl "http://localhost:8082/api/products/search?keyword=노트북"
 ### 상품 등록 (인증 필요)
 
 ```bash
+# Authorization 헤더 사용
 curl -X POST "http://localhost:8082/api/products" \
   -H "Authorization: Bearer your_jwt_token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "중고 노트북",
+    "description": "사용한지 1년된 노트북입니다",
+    "category": "전자제품",
+    "price": 800000
+  }'
+
+# 쿠키 사용 (access_token)
+curl -X POST "http://localhost:8082/api/products" \
+  -b "access_token=your_jwt_token" \
   -H "Content-Type: application/json" \
   -d '{
     "title": "중고 노트북",
