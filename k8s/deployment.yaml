@@ -50,18 +50,19 @@ spec:
           limits:
             memory: "1Gi"
             cpu: "500m"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 8082
-          initialDelaySeconds: 60
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 8082
-          initialDelaySeconds: 30
-          periodSeconds: 5
+# Temporarily disabled for testing
+        # livenessProbe:
+        #   httpGet:
+        #     path: /health
+        #     port: 8082
+        #   initialDelaySeconds: 60
+        #   periodSeconds: 10
+        # readinessProbe:
+        #   httpGet:
+        #     path: /health
+        #     port: 8082
+        #   initialDelaySeconds: 30
+        #   periodSeconds: 5
         volumeMounts:
         - name: config
           mountPath: /app/config

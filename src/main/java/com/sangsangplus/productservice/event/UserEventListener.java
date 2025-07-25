@@ -33,6 +33,11 @@ public class UserEventListener {
 
     @PostConstruct
     public void startListening() {
+        logger.info("Event Hub listener disabled for API testing - skipping user event listener startup");
+        
+        // Temporarily disabled to prevent pod crashes due to missing consumer group
+        // TODO: Re-enable after creating 'product-service-group' consumer group in Azure Event Hub
+        /*
         isRunning = true;
         logger.info("Starting User Event Listener...");
         
@@ -51,6 +56,7 @@ public class UserEventListener {
         }, executorService);
         
         logger.info("User Event Listener started successfully");
+        */
     }
 
     private void handleEvent(PartitionEvent partitionEvent) {

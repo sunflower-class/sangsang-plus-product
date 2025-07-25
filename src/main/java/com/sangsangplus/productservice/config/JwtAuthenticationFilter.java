@@ -28,7 +28,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                   HttpServletResponse response,
                                   FilterChain filterChain) throws ServletException, IOException {
         
+        logger.info("JWT Filter processing request: " + request.getMethod() + " " + request.getRequestURI());
         String token = extractToken(request);
+        logger.info("Extracted token: " + (token != null ? "Present" : "Null"));
         
         if (token != null) {
             try {
@@ -50,7 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             } catch (Exception e) {
                 // 토큰이 유효하지 않은 경우 인증 정보 없이 진행
-                logger.debug("Token validation failed: " + e.getMessage());
+                logger.error("Token validation failed: " + e.getMessage(), e);
             }
         }
         
