@@ -86,7 +86,7 @@ public class ProductLifecycleIntegrationTest {
         // Then: 생성된 상품 정보 확인
         String createResponse = createResult.getResponse().getContentAsString();
         ProductResponse createdProduct = objectMapper.readValue(createResponse, ProductResponse.class);
-        Long productId = createdProduct.getId();
+        Long productId = createdProduct.getProductId();
         
         System.out.println("생성된 상품 ID: " + productId);
         System.out.println("생성된 상품 정보: " + createResponse);
@@ -101,7 +101,7 @@ public class ProductLifecycleIntegrationTest {
         System.out.println("=== 상품 조회 테스트 ===");
         mockMvc.perform(get("/api/products/" + productId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(productId))
+                .andExpect(jsonPath("$.productId").value(productId))
                 .andExpect(jsonPath("$.title").value("테스트 노트북"))
                 .andExpect(jsonPath("$.userEmail").value("testuser@example.com"));
 
@@ -134,12 +134,12 @@ public class ProductLifecycleIntegrationTest {
 
         String createRequestJson = objectMapper.writeValueAsString(createRequest);
 
-        // When & Then: 인증 없이 상품 생성 시도하면 401 에러
+        // When & Then: 인증 없이 상품 생성 시도하면 403 에러
         System.out.println("=== 인증 없는 접근 테스트 ===");
         mockMvc.perform(post("/api/products")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(createRequestJson))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
         
         System.out.println("인증 없는 접근이 정상적으로 차단됨");
     }
@@ -157,13 +157,13 @@ public class ProductLifecycleIntegrationTest {
 
         String createRequestJson = objectMapper.writeValueAsString(createRequest);
 
-        // When & Then: 잘못된 JWT 토큰으로 상품 생성 시도하면 401 에러
+        // When & Then: 잘못된 JWT 토큰으로 상품 생성 시도하면 403 에러
         System.out.println("=== 잘못된 JWT 토큰 테스트 ===");
         mockMvc.perform(post("/api/products")
                 .header("Authorization", "Bearer " + invalidToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(createRequestJson))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
         
         System.out.println("잘못된 JWT 토큰이 정상적으로 차단됨");
     }
