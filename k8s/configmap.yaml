@@ -26,12 +26,8 @@ data:
             connection-string: ${USER_EVENTHUB_CONNECTION_STRING}
             name: user-events
             consumer-group: product-service-group
-      security:
-        oauth2:
-          resourceserver:
-            jwt:
-              issuer-uri: http://gateway-service:8080
-              jwk-set-uri: http://gateway-service:8080/.well-known/jwks.json
+    jwt:
+      secret: ${JWT_SECRET}
     
     server:
       port: 8082
