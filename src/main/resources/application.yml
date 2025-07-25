@@ -36,12 +36,6 @@ azure:
     type: simple
     cache-names: products, categories
   
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: ${JWT_ISSUER_URI:https://oauth.buildingbite.com}
-          jwk-set-uri: ${JWT_JWK_SET_URI:https://oauth.buildingbite.com/.well-known/jwks.json}
 
 # JWT Configuration
 jwt:
