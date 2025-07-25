@@ -38,7 +38,7 @@ public class UserEventListener {
         
         CompletableFuture.runAsync(() -> {
             try {
-                eventHubConsumerClient.receiveFromPartition("0", EventPosition.latest())
+                eventHubConsumerClient.receiveFromPartition("0", 100, EventPosition.latest())
                     .subscribe(partitionEvent -> {
                         if (isRunning) {
                             handleEvent(partitionEvent);
