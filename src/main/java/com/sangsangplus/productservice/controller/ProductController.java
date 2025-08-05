@@ -22,9 +22,18 @@ import java.util.List;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @RestController
 @RequestMapping("/api/products")
+@Tag(name = "Product", description = "상품 관리 API")
 public class ProductController {
     
     private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
@@ -39,14 +48,18 @@ public class ProductController {
     
     // Health check endpoint
     @GetMapping("/health")
+    @Operation(summary = "헬스체크", description = "서비스 상태를 확인합니다")
+    @ApiResponse(responseCode = "200", description = "서비스 정상 작동")
     public ResponseEntity<String> health() {
         return ResponseEntity.ok("OK");
     }
     
     // Query endpoints - 인증 없이 접근 가능
     @GetMapping
+    @Operation(summary = "전체 상품 조회", description = "페이징을 지원하는 전체 상품 목록을 조회합니다")
+    @ApiResponse(responseCode = "200", description = "상품 목록 조회 성공")
     public ResponseEntity<PageResponse<ProductResponse>> getAllProducts(
-            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @Parameter(description = "페이징 정보") @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         PageResponse<ProductResponse> response = queryService.getAllProducts(pageable);
         return ResponseEntity.ok(response);
     }
@@ -89,7 +102,13 @@ public class ProductController {
     }
     
     @GetMapping("/{productId}")
-    public ResponseEntity<ProductResponse> getProduct(@PathVariable Long productId) {
+    @Operation(summary = "특정 상품 조회", description = "상품 ID로 특정 상품의 상세 정보를 조회합니다")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "상품 조회 성공"),
+        @ApiResponse(responseCode = "404", description = "상품을 찾을 수 없음")
+    })
+    public ResponseEntity<ProductResponse> getProduct(
+            @Parameter(description = "상품 ID") @PathVariable Long productId) {
         ProductResponse response = queryService.getProduct(productId);
         return ResponseEntity.ok(response);
     }
@@ -97,9 +116,16 @@ public class ProductController {
     // Command endpoints - 인증 필요
     @PostMapping
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @Operation(summary = "상품 등록", description = "새로운 상품을 등록합니다", 
+               security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "상품 등록 성공"),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청 데이터"),
+        @ApiResponse(responseCode = "401", description = "인증 필요")
+    })
     public ResponseEntity<ProductResponse> createProduct(
-            @AuthenticationPrincipal UUID userId,
-            @Valid @RequestBody ProductCreateRequest request,
+            @Parameter(hidden = true) @AuthenticationPrincipal UUID userId,
+            @Parameter(description = "상품 등록 정보") @Valid @RequestBody ProductCreateRequest request,
             HttpServletRequest httpRequest) {
         
         logger.info("=== CREATE PRODUCT REQUEST START ===");

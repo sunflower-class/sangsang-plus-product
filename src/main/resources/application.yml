@@ -40,6 +40,19 @@ azure:
 server:
   port: 8082
 
+# API Documentation Configuration
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    disable-swagger-default-url: true
+    display-request-duration: true
+    groups-order: DESC
+    operationsSorter: method
+    tags-sorter: alpha
+  show-actuator: false
+
 eureka:
   client:
     enabled: false
