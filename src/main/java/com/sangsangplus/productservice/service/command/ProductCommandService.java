@@ -21,10 +21,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 @Transactional
 public class ProductCommandService {
+    
+    private static final Logger logger = LoggerFactory.getLogger(ProductCommandService.class);
     
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
@@ -40,6 +44,10 @@ public class ProductCommandService {
     
     // 상품 생성
     public ProductResponse createProduct(UUID userId, String token, ProductCreateRequest request) {
+        logger.info("=== CREATE PRODUCT SERVICE START ===");
+        logger.info("User ID: {}", userId);
+        logger.info("Request: {}", request);
+        
         // Product 엔티티 생성
         Product product = new Product(
             userId,
@@ -48,6 +56,8 @@ public class ProductCommandService {
             request.getCategory(),
             request.getPrice()
         );
+        
+        logger.info("Created product entity: {}", product);
         
         // 이미지 추가
         if (request.getImages() != null && !request.getImages().isEmpty()) {

@@ -25,13 +25,29 @@ public class HeaderAuthenticationFilter extends OncePerRequestFilter {
                                   HttpServletResponse response,
                                   FilterChain filterChain) throws ServletException, IOException {
         
-        logger.info("Header Auth Filter processing request: " + request.getMethod() + " " + request.getRequestURI());
+        logger.info("=== HEADER AUTH FILTER START ===");
+        logger.info("Request: " + request.getMethod() + " " + request.getRequestURI());
+        logger.info("Remote Address: " + request.getRemoteAddr());
         
         String userIdHeader = request.getHeader(USER_ID_HEADER);
         String userRole = request.getHeader(USER_ROLE_HEADER);
+        String authHeader = request.getHeader("Authorization");
         
-        logger.info("X-User-Id header: " + userIdHeader);
-        logger.info("X-User-Role header: " + userRole);
+        logger.info("X-User-Id header: [" + userIdHeader + "]");
+        logger.info("X-User-Role header: [" + userRole + "]");
+        logger.info("Authorization header: [" + (authHeader != null ? "Bearer " + authHeader.substring(0, Math.min(50, authHeader.length())) + "..." : "null") + "]");
+        
+        // 모든 헤더 로깅 (디버깅용)
+        logger.info("All headers:");
+        java.util.Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+            String headerValue = request.getHeader(headerName);
+            if ("authorization".equalsIgnoreCase(headerName) && headerValue != null && headerValue.length() > 50) {
+                headerValue = headerValue.substring(0, 50) + "...";
+            }
+            logger.info("  " + headerName + ": " + headerValue);
+        }
         
         if (userIdHeader != null && !userIdHeader.isEmpty()) {
             try {
@@ -59,8 +75,11 @@ public class HeaderAuthenticationFilter extends OncePerRequestFilter {
             } catch (IllegalArgumentException e) {
                 logger.error("Invalid UUID format for user ID: " + userIdHeader);
             }
+        } else {
+            logger.info("No X-User-Id header found - proceeding without authentication");
         }
         
+        logger.info("=== HEADER AUTH FILTER END ===\n");
         filterChain.doFilter(request, response);
     }
 }

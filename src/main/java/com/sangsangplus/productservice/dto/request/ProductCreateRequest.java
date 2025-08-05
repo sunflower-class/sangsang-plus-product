@@ -75,4 +75,15 @@ public class ProductCreateRequest {
     public void setImages(List<ProductImageRequest> images) {
         this.images = images;
     }
+    
+    @Override
+    public String toString() {
+        return "ProductCreateRequest{" +
+               "title='" + title + '\'' +
+               ", description='" + description + '\'' +
+               ", category='" + category + '\'' +
+               ", price=" + price +
+               ", images=" + (images != null ? images.size() + " images" : "null") +
+               '}';
+    }
 }

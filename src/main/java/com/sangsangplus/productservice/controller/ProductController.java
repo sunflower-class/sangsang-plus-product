@@ -20,10 +20,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
+    
+    private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
     
     private final ProductCommandService commandService;
     private final ProductQueryService queryService;
@@ -95,9 +99,28 @@ public class ProductController {
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<ProductResponse> createProduct(
             @AuthenticationPrincipal UUID userId,
-            @Valid @RequestBody ProductCreateRequest request) {
-        ProductResponse response = commandService.createProduct(userId, null, request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            @Valid @RequestBody ProductCreateRequest request,
+            HttpServletRequest httpRequest) {
+        
+        logger.info("=== CREATE PRODUCT REQUEST START ===");
+        logger.info("User ID from @AuthenticationPrincipal: {}", userId);
+        logger.info("Request body: {}", request);
+        
+        // 헤더 정보 로깅
+        logger.info("X-User-Id header: {}", httpRequest.getHeader("X-User-Id"));
+        logger.info("X-User-Role header: {}", httpRequest.getHeader("X-User-Role"));
+        logger.info("Authorization header: {}", httpRequest.getHeader("Authorization"));
+        
+        try {
+            ProductResponse response = commandService.createProduct(userId, null, request);
+            logger.info("Product created successfully: {}", response);
+            logger.info("=== CREATE PRODUCT REQUEST END ===\n");
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (Exception e) {
+            logger.error("Error creating product: ", e);
+            logger.info("=== CREATE PRODUCT REQUEST END (ERROR) ===\n");
+            throw e;
+        }
     }
     
     @PutMapping("/{productId}")

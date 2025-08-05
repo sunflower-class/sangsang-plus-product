@@ -41,8 +41,6 @@ CREATE INDEX idx_product_images_display_order ON product_images(product_id, disp
 -- 5. Add comments for documentation
 COMMENT ON TABLE products IS 'Product information table with UUID user references';
 COMMENT ON COLUMN products.user_id IS 'UUID of the user who created the product';
-COMMENT ON COLUMN products.user_email IS 'Cached user email for display purposes';
-COMMENT ON COLUMN products.user_name IS 'Cached user name for display purposes';
 
 -- 6. Sample data for testing (optional)
 -- Uncomment below to insert test data
