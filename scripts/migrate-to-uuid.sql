@@ -45,10 +45,10 @@ COMMENT ON COLUMN products.user_id IS 'UUID of the user who created the product'
 -- 6. Sample data for testing (optional)
 -- Uncomment below to insert test data
 /*
-INSERT INTO products (user_id, user_email, user_name, title, description, category, price) VALUES
-    ('550e8400-e29b-41d4-a716-446655440001'::UUID, 'test1@example.com', 'Test User 1', 'MacBook Pro 16"', 'Latest MacBook Pro with M3 chip', '전자제품', 3500000),
-    ('550e8400-e29b-41d4-a716-446655440002'::UUID, 'test2@example.com', 'Test User 2', 'iPhone 15 Pro', 'iPhone 15 Pro 256GB', '전자제품', 1500000),
-    ('550e8400-e29b-41d4-a716-446655440001'::UUID, 'test1@example.com', 'Test User 1', '무선 키보드', 'Apple Magic Keyboard', '전자제품', 150000);
+INSERT INTO products (user_id, title, description, category, price) VALUES
+    ('550e8400-e29b-41d4-a716-446655440001'::UUID, 'MacBook Pro 16"', 'Latest MacBook Pro with M3 chip', '전자제품', 3500000),
+    ('550e8400-e29b-41d4-a716-446655440002'::UUID, 'iPhone 15 Pro', 'iPhone 15 Pro 256GB', '전자제품', 1500000),
+    ('550e8400-e29b-41d4-a716-446655440001'::UUID, '무선 키보드', 'Apple Magic Keyboard', '전자제품', 150000);
 
 INSERT INTO product_images (product_id, url, alt_text, display_order) VALUES
     (1, 'https://example.com/macbook1.jpg', 'MacBook Pro front view', 0),
