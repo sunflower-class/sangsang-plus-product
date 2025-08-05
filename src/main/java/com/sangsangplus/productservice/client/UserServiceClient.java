@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 public class UserServiceClient {
     
     // TODO: 실제로는 RestTemplate이나 WebClient로 User Service 호출
-    public UserDto getUser(Long userId, String token) {
+    public UserDto getUser(Long userId) {
         // 임시 구현 - 나중에 실제 User Service 호출로 변경
         return new UserDto(
             userId,

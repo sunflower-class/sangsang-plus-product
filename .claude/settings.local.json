@@ -32,7 +32,8 @@
       "Bash(git restore:*)",
       "Bash(git pull:*)",
       "Bash(mv:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(kubectl rollout status:*)"
     ],
     "deny": []
   }

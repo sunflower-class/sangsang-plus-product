@@ -32,6 +32,12 @@ public class ProductController {
         this.queryService = queryService;
     }
     
+    // Health check endpoint
+    @GetMapping("/health")
+    public ResponseEntity<String> health() {
+        return ResponseEntity.ok("OK");
+    }
+    
     // Query endpoints - 인증 없이 접근 가능
     @GetMapping
     public ResponseEntity<PageResponse<ProductResponse>> getAllProducts(
@@ -88,10 +94,8 @@ public class ProductController {
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<ProductResponse> createProduct(
             @AuthenticationPrincipal Long userId,
-            @Valid @RequestBody ProductCreateRequest request,
-            HttpServletRequest httpRequest) {
-        String token = extractToken(httpRequest);
-        ProductResponse response = commandService.createProduct(userId, token, request);
+            @Valid @RequestBody ProductCreateRequest request) {
+        ProductResponse response = commandService.createProduct(userId, null, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
     
@@ -171,22 +175,4 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
     
-    private String extractToken(HttpServletRequest request) {
-        // Authorization 헤더에서 토큰 추출
-        String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-        
-        // 쿠키에서 access_token 추출
-        if (request.getCookies() != null) {
-            for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
-                if ("access_token".equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
-        }
-        
-        return null;
-    }
 }

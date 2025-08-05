@@ -45,7 +45,7 @@ public class ProductCommandService {
     // 상품 생성
     public ProductResponse createProduct(Long userId, String token, ProductCreateRequest request) {
         // 사용자 정보 조회
-        UserDto user = userServiceClient.getUser(userId, token);
+        UserDto user = userServiceClient.getUser(userId);
         
         // Product 엔티티 생성
         Product product = new Product(

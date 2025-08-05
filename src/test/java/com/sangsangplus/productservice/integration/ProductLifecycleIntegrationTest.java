@@ -5,7 +5,6 @@ import com.sangsangplus.productservice.domain.entity.Product;
 import com.sangsangplus.productservice.dto.request.ProductCreateRequest;
 import com.sangsangplus.productservice.dto.response.ProductResponse;
 import com.sangsangplus.productservice.repository.ProductRepository;
-import com.sangsangplus.productservice.util.JwtTestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +39,8 @@ public class ProductLifecycleIntegrationTest {
     private ObjectMapper objectMapper;
     
     private MockMvc mockMvc;
-    private String userJwtToken;
+    private static final Long TEST_USER_ID = 12345L;
+    private static final Long ADMIN_USER_ID = 99999L;
 
     @BeforeEach
     void setUp() {
@@ -48,8 +48,6 @@ public class ProductLifecycleIntegrationTest {
                 .webAppContextSetup(webApplicationContext)
                 .apply(springSecurity())
                 .build();
-        
-        userJwtToken = JwtTestUtil.createUserToken();
         
         // 기존 테스트 데이터 정리
         productRepository.deleteAll();
@@ -68,19 +66,20 @@ public class ProductLifecycleIntegrationTest {
 
         // When: 상품 생성 API 호출
         System.out.println("=== 상품 생성 테스트 시작 ===");
-        System.out.println("JWT Token: " + userJwtToken);
+        System.out.println("User ID: " + TEST_USER_ID);
         System.out.println("Create Request: " + createRequestJson);
 
         MvcResult createResult = mockMvc.perform(post("/api/products")
-                .header("Authorization", "Bearer " + userJwtToken)
+                .header("X-User-Id", TEST_USER_ID.toString())
+                .header("X-User-Role", "USER")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(createRequestJson))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.title").value("테스트 노트북"))
                 .andExpect(jsonPath("$.category").value("전자제품"))
                 .andExpect(jsonPath("$.price").value(1500000))
-                .andExpect(jsonPath("$.userEmail").value("testuser@example.com"))
-                .andExpect(jsonPath("$.userName").value("테스트사용자"))
+                .andExpect(jsonPath("$.userEmail").value("user12345@example.com"))
+                .andExpect(jsonPath("$.userName").value("User 12345"))
                 .andReturn();
 
         // Then: 생성된 상품 정보 확인
@@ -95,7 +94,7 @@ public class ProductLifecycleIntegrationTest {
         Product savedProduct = productRepository.findById(productId).orElse(null);
         assertNotNull(savedProduct, "상품이 데이터베이스에 저장되어야 함");
         assertEquals("테스트 노트북", savedProduct.getTitle());
-        assertEquals("testuser@example.com", savedProduct.getUserEmail());
+        assertEquals("user12345@example.com", savedProduct.getUserEmail());
 
         // When: 생성된 상품 조회
         System.out.println("=== 상품 조회 테스트 ===");
@@ -103,12 +102,13 @@ public class ProductLifecycleIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.productId").value(productId))
                 .andExpect(jsonPath("$.title").value("테스트 노트북"))
-                .andExpect(jsonPath("$.userEmail").value("testuser@example.com"));
+                .andExpect(jsonPath("$.userEmail").value("user12345@example.com"));
 
         // When: 상품 삭제 API 호출
         System.out.println("=== 상품 삭제 테스트 시작 ===");
         mockMvc.perform(delete("/api/products/" + productId)
-                .header("Authorization", "Bearer " + userJwtToken))
+                .header("X-User-Id", TEST_USER_ID.toString())
+                .header("X-User-Role", "USER"))
                 .andExpect(status().isNoContent());
 
         // Then: 삭제된 상품 확인
@@ -125,7 +125,7 @@ public class ProductLifecycleIntegrationTest {
 
     @Test
     void testUnauthorizedAccess() throws Exception {
-        // Given: JWT 토큰 없이 상품 생성 시도
+        // Given: X-User-Id 헤더 없이 상품 생성 시도
         ProductCreateRequest createRequest = new ProductCreateRequest();
         createRequest.setTitle("무단 접근 테스트");
         createRequest.setDescription("인증 없는 요청");
@@ -145,26 +145,42 @@ public class ProductLifecycleIntegrationTest {
     }
 
     @Test 
-    void testInvalidJwtToken() throws Exception {
-        // Given: 잘못된 JWT 토큰
-        String invalidToken = "invalid.jwt.token";
-        
+    void testAdminAccess() throws Exception {
+        // Given: 일반 사용자가 상품 생성
         ProductCreateRequest createRequest = new ProductCreateRequest();
-        createRequest.setTitle("잘못된 토큰 테스트");
-        createRequest.setDescription("유효하지 않은 JWT 토큰");
+        createRequest.setTitle("관리자 테스트 상품");
+        createRequest.setDescription("관리자 권한 테스트용");
         createRequest.setCategory("테스트");
-        createRequest.setPrice(new BigDecimal("50000"));
+        createRequest.setPrice(new BigDecimal("200000"));
 
         String createRequestJson = objectMapper.writeValueAsString(createRequest);
 
-        // When & Then: 잘못된 JWT 토큰으로 상품 생성 시도하면 403 에러
-        System.out.println("=== 잘못된 JWT 토큰 테스트 ===");
-        mockMvc.perform(post("/api/products")
-                .header("Authorization", "Bearer " + invalidToken)
+        // 일반 사용자로 상품 생성
+        MvcResult createResult = mockMvc.perform(post("/api/products")
+                .header("X-User-Id", TEST_USER_ID.toString())
+                .header("X-User-Role", "USER")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(createRequestJson))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        ProductResponse createdProduct = objectMapper.readValue(
+            createResult.getResponse().getContentAsString(), 
+            ProductResponse.class
+        );
+        Long productId = createdProduct.getProductId();
+
+        // When & Then: 관리자가 상품 삭제
+        System.out.println("=== 관리자 권한 테스트 ===");
+        mockMvc.perform(delete("/api/products/admin/" + productId)
+                .header("X-User-Id", ADMIN_USER_ID.toString())
+                .header("X-User-Role", "ADMIN"))
+                .andExpect(status().isNoContent());
+
+        // 삭제 확인
+        boolean exists = productRepository.existsById(productId);
+        assertFalse(exists, "관리자가 삭제한 상품은 존재하지 않아야 함");
         
-        System.out.println("잘못된 JWT 토큰이 정상적으로 차단됨");
+        System.out.println("관리자 권한 테스트 완료");
     }
 }
