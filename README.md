@@ -233,29 +233,40 @@ GitHub Actions를 통한 자동 배포가 구성되어 있습니다:
 
 ## 🔍 API 사용 예제
 
-### 상품 조회 (공개)
+### 1. 헬스체크 및 공개 API
 
 ```bash
 # 헬스체크
-curl "http://localhost:8082/api/products/health"
+curl "https://oauth.buildingbite.com/api/products/health"
+# Response: "OK"
 
 # 전체 상품 조회 (페이징)
-curl "http://localhost:8082/api/products?page=0&size=10"
+curl "https://oauth.buildingbite.com/api/products?page=0&size=10&sort=createdAt,desc"
 
 # 특정 상품 조회
-curl "http://localhost:8082/api/products/1"
+curl "https://oauth.buildingbite.com/api/products/1"
 
 # 상품 검색
-curl "http://localhost:8082/api/products/search?keyword=노트북"
+curl "https://oauth.buildingbite.com/api/products/search?keyword=노트북&page=0&size=20"
+
+# 카테고리별 상품 조회
+curl "https://oauth.buildingbite.com/api/products/category/전자제품"
 
 # 특정 사용자 상품 조회 (UUID 사용)
-curl "http://localhost:8082/api/products/user/550e8400-e29b-41d4-a716-446655440001"
+curl "https://oauth.buildingbite.com/api/products/user/550e8400-e29b-41d4-a716-446655440001"
+
+# 최근 상품 조회
+curl "https://oauth.buildingbite.com/api/products/recent?limit=5"
+
+# 전체 카테고리 목록
+curl "https://oauth.buildingbite.com/api/products/categories"
 ```
 
-### 상품 등록 (헤더 인증 필요)
+### 2. 인증이 필요한 API (게이트웨이를 통한 호출)
+
+#### 상품 등록
 
 ```bash
-# 게이트웨이를 통한 요청 (실제 운영)
 curl -X POST "https://oauth.buildingbite.com/api/products" \
   -H "Authorization: Bearer your_jwt_token" \
   -H "Content-Type: application/json" \
@@ -267,23 +278,167 @@ curl -X POST "https://oauth.buildingbite.com/api/products" \
     "images": [
       {
         "url": "https://example.com/image1.jpg",
-        "altText": "MacBook 전면",
-        "displayOrder": 0
+        "altText": "MacBook 전면"
+      },
+      {
+        "url": "https://example.com/image2.jpg", 
+        "altText": "MacBook 측면"
       }
     ]
   }'
+```
 
-# 직접 테스트 (개발용 - 헤더 직접 설정)
+#### 상품 수정
+
+```bash
+curl -X PUT "https://oauth.buildingbite.com/api/products/1" \
+  -H "Authorization: Bearer your_jwt_token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "MacBook Pro 16인치 (가격 인하)",
+    "description": "2022년 구매, 거의 새 제품 - 빠른 판매 원함",
+    "category": "전자제품",
+    "price": 2200000
+  }'
+```
+
+#### 상품 삭제
+
+```bash
+curl -X DELETE "https://oauth.buildingbite.com/api/products/1" \
+  -H "Authorization: Bearer your_jwt_token"
+```
+
+#### 내 상품 조회
+
+```bash
+curl "https://oauth.buildingbite.com/api/products/my?page=0&size=10" \
+  -H "Authorization: Bearer your_jwt_token"
+```
+
+#### 상품 이미지 추가
+
+```bash
+curl -X POST "https://oauth.buildingbite.com/api/products/1/images" \
+  -H "Authorization: Bearer your_jwt_token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://example.com/new-image.jpg",
+    "altText": "추가 상품 이미지"
+  }'
+```
+
+#### 상품 이미지 삭제
+
+```bash
+curl -X DELETE "https://oauth.buildingbite.com/api/products/1/images/5" \
+  -H "Authorization: Bearer your_jwt_token"
+```
+
+### 3. 로컬 개발환경에서 직접 테스트 (헤더 직접 설정)
+
+```bash
+# 상품 등록 (개발용)
 curl -X POST "http://localhost:8082/api/products" \
   -H "X-User-Id: 550e8400-e29b-41d4-a716-446655440001" \
   -H "X-User-Role: USER" \
   -H "Content-Type: application/json" \
   -d '{
-    "title": "MacBook Pro 16인치",
-    "description": "2022년 구매, 거의 새 제품",
+    "title": "테스트 상품",
+    "description": "로컬 개발환경 테스트",
     "category": "전자제품",
-    "price": 2500000
+    "price": 10000
   }'
+
+# 내 상품 조회 (개발용)
+curl "http://localhost:8082/api/products/my" \
+  -H "X-User-Id: 550e8400-e29b-41d4-a716-446655440001" \
+  -H "X-User-Role: USER"
+```
+
+### 4. 관리자 API
+
+```bash
+# 관리자 권한으로 상품 수정
+curl -X PUT "https://oauth.buildingbite.com/api/products/admin/1" \
+  -H "Authorization: Bearer admin_jwt_token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "관리자가 수정한 상품",
+    "description": "부적절한 내용 수정됨",
+    "category": "전자제품",
+    "price": 1500000
+  }'
+
+# 관리자 권한으로 상품 삭제
+curl -X DELETE "https://oauth.buildingbite.com/api/products/admin/1" \
+  -H "Authorization: Bearer admin_jwt_token"
+```
+
+### 5. 응답 예시
+
+#### 상품 등록 성공 응답 (201 Created)
+
+```json
+{
+  "productId": 1,
+  "userId": "550e8400-e29b-41d4-a716-446655440001",
+  "title": "MacBook Pro 16인치",
+  "description": "2022년 구매, 거의 새 제품",
+  "category": "전자제품",
+  "price": 2500000,
+  "createdAt": "2024-08-05T04:30:00.000Z",
+  "updatedAt": "2024-08-05T04:30:00.000Z",
+  "images": [
+    {
+      "imageId": 1,
+      "url": "https://example.com/image1.jpg",
+      "altText": "MacBook 전면",
+      "displayOrder": 0,
+      "createdAt": "2024-08-05T04:30:00.000Z"
+    }
+  ]
+}
+```
+
+#### 에러 응답 예시
+
+```json
+// 400 Bad Request - 유효성 검증 실패
+{
+  "timestamp": "2024-08-05T04:30:00.000Z",
+  "status": 400,
+  "error": "Bad Request",
+  "message": "제목은 필수입니다",
+  "path": "/api/products"
+}
+
+// 401 Unauthorized - 인증 실패
+{
+  "timestamp": "2024-08-05T04:30:00.000Z", 
+  "status": 401,
+  "error": "Unauthorized",
+  "message": "Authentication required",
+  "path": "/api/products"
+}
+
+// 403 Forbidden - 권한 부족
+{
+  "timestamp": "2024-08-05T04:30:00.000Z",
+  "status": 403,
+  "error": "Forbidden", 
+  "message": "You don't have permission to update this product",
+  "path": "/api/products/1"
+}
+
+// 404 Not Found - 상품 없음
+{
+  "timestamp": "2024-08-05T04:30:00.000Z",
+  "status": 404,
+  "error": "Not Found",
+  "message": "Product not found with id: 999",
+  "path": "/api/products/999"
+}
 ```
 
 ## 📊 모니터링

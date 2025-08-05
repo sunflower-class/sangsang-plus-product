@@ -53,10 +53,9 @@ public class HeaderAuthenticationFilter extends OncePerRequestFilter {
             try {
                 UUID userId = UUID.fromString(userIdHeader);
                 
-                // Default to USER role if not specified
-                if (userRole == null || userRole.isEmpty()) {
-                    userRole = "USER";
-                }
+                // Map Keycloak roles to our application roles
+                String mappedRole = mapRole(userRole);
+                userRole = mappedRole;
                 
                 // Add ROLE_ prefix if not present
                 if (!userRole.startsWith("ROLE_")) {
@@ -81,5 +80,23 @@ public class HeaderAuthenticationFilter extends OncePerRequestFilter {
         
         logger.info("=== HEADER AUTH FILTER END ===\n");
         filterChain.doFilter(request, response);
+    }
+    
+    /**
+     * Maps Keycloak roles to application roles
+     */
+    private String mapRole(String keycloakRoles) {
+        if (keycloakRoles == null || keycloakRoles.isEmpty()) {
+            return "USER"; // Default role
+        }
+        
+        // Check if roles contain admin-like roles
+        String lowerRoles = keycloakRoles.toLowerCase();
+        if (lowerRoles.contains("admin") || lowerRoles.contains("manager")) {
+            return "ADMIN";
+        }
+        
+        // Default to USER for any authenticated user
+        return "USER";
     }
 }
