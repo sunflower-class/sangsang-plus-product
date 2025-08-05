@@ -94,23 +94,18 @@ jobs:
 
     - name: Deploy to product-service namespace
       run: |
-        # Update image tag
-        SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
-        sed -i "s|image: buildingbite/sangsangplus-product:.*|image: buildingbite/sangsangplus-product:main-${SHORT_SHA}|g" k8s/deployment.yaml
-        
-        # Apply to product-service namespace
+        # Apply k8s resources (uses latest tag as defined in deployment.yaml)
         kubectl apply -f k8s/
+        
+        # Restart deployment to pull latest image
+        kubectl rollout restart deployment/product-service -n product-service
         kubectl rollout status deployment/product-service -n product-service --timeout=600s
 
     - name: Run health check
       run: |
         # Wait for deployment to be ready
         kubectl wait --for=condition=available --timeout=300s deployment/product-service -n product-service
-        
-        # Port forward for health check
-        kubectl port-forward -n product-service svc/product-service 8080:80 &
-        sleep 10
-        
+
         # Health check
-        curl -f http://localhost:8080/health || exit 1
+        curl -f https://oauth.buildingbite.com/api/products/health || exit 1
         echo "Product Service deployment successful!"
