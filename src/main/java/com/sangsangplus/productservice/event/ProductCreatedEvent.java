@@ -2,10 +2,11 @@ package com.sangsangplus.productservice.event;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class ProductCreatedEvent {
     private Long productId;
-    private Long userId;
+    private UUID userId;
     private String title;
     private String category;
     private BigDecimal price;
@@ -15,7 +16,7 @@ public class ProductCreatedEvent {
         this.createdAt = LocalDateTime.now();
     }
     
-    public ProductCreatedEvent(Long productId, Long userId, String title, 
+    public ProductCreatedEvent(Long productId, UUID userId, String title, 
                               String category, BigDecimal price) {
         this.productId = productId;
         this.userId = userId;
@@ -34,11 +35,11 @@ public class ProductCreatedEvent {
         this.productId = productId;
     }
     
-    public Long getUserId() {
+    public UUID getUserId() {
         return userId;
     }
     
-    public void setUserId(Long userId) {
+    public void setUserId(UUID userId) {
         this.userId = userId;
     }
     

@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -39,8 +40,8 @@ public class ProductLifecycleIntegrationTest {
     private ObjectMapper objectMapper;
     
     private MockMvc mockMvc;
-    private static final Long TEST_USER_ID = 12345L;
-    private static final Long ADMIN_USER_ID = 99999L;
+    private static final UUID TEST_USER_ID = UUID.fromString("550e8400-e29b-41d4-a716-446655440001");
+    private static final UUID ADMIN_USER_ID = UUID.fromString("550e8400-e29b-41d4-a716-446655440099");
 
     @BeforeEach
     void setUp() {
@@ -78,8 +79,6 @@ public class ProductLifecycleIntegrationTest {
                 .andExpect(jsonPath("$.title").value("테스트 노트북"))
                 .andExpect(jsonPath("$.category").value("전자제품"))
                 .andExpect(jsonPath("$.price").value(1500000))
-                .andExpect(jsonPath("$.userEmail").value("user12345@example.com"))
-                .andExpect(jsonPath("$.userName").value("User 12345"))
                 .andReturn();
 
         // Then: 생성된 상품 정보 확인
@@ -94,7 +93,7 @@ public class ProductLifecycleIntegrationTest {
         Product savedProduct = productRepository.findById(productId).orElse(null);
         assertNotNull(savedProduct, "상품이 데이터베이스에 저장되어야 함");
         assertEquals("테스트 노트북", savedProduct.getTitle());
-        assertEquals("user12345@example.com", savedProduct.getUserEmail());
+        assertEquals(TEST_USER_ID, savedProduct.getUserId());
 
         // When: 생성된 상품 조회
         System.out.println("=== 상품 조회 테스트 ===");
@@ -102,7 +101,7 @@ public class ProductLifecycleIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.productId").value(productId))
                 .andExpect(jsonPath("$.title").value("테스트 노트북"))
-                .andExpect(jsonPath("$.userEmail").value("user12345@example.com"));
+                .andExpect(jsonPath("$.userId").value(TEST_USER_ID.toString()));
 
         // When: 상품 삭제 API 호출
         System.out.println("=== 상품 삭제 테스트 시작 ===");

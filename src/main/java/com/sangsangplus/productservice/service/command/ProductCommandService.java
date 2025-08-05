@@ -1,9 +1,7 @@
 package com.sangsangplus.productservice.service.command;
 
-import com.sangsangplus.productservice.client.UserServiceClient;
 import com.sangsangplus.productservice.domain.entity.Product;
 import com.sangsangplus.productservice.domain.entity.ProductImage;
-import com.sangsangplus.productservice.dto.external.UserDto;
 import com.sangsangplus.productservice.dto.request.ProductCreateRequest;
 import com.sangsangplus.productservice.dto.request.ProductImageRequest;
 import com.sangsangplus.productservice.dto.request.ProductUpdateRequest;
@@ -21,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,29 +28,21 @@ public class ProductCommandService {
     
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
-    private final UserServiceClient userServiceClient;
     private final EventPublisher eventPublisher;
     
     public ProductCommandService(ProductRepository productRepository,
                                 ProductImageRepository productImageRepository,
-                                UserServiceClient userServiceClient,
                                 EventPublisher eventPublisher) {
         this.productRepository = productRepository;
         this.productImageRepository = productImageRepository;
-        this.userServiceClient = userServiceClient;
         this.eventPublisher = eventPublisher;
     }
     
     // 상품 생성
-    public ProductResponse createProduct(Long userId, String token, ProductCreateRequest request) {
-        // 사용자 정보 조회
-        UserDto user = userServiceClient.getUser(userId);
-        
+    public ProductResponse createProduct(UUID userId, String token, ProductCreateRequest request) {
         // Product 엔티티 생성
         Product product = new Product(
             userId,
-            user.getEmail(),
-            user.getName(),
             request.getTitle(),
             request.getDescription(),
             request.getCategory(),
@@ -88,7 +79,7 @@ public class ProductCommandService {
     }
     
     // 상품 수정
-    public ProductResponse updateProduct(Long userId, Long productId, ProductUpdateRequest request) {
+    public ProductResponse updateProduct(UUID userId, Long productId, ProductUpdateRequest request) {
         Product product = productRepository.findByProductIdAndUserId(productId, userId)
             .orElseThrow(() -> new UnauthorizedException("You don't have permission to update this product"));
         
@@ -115,7 +106,7 @@ public class ProductCommandService {
     }
     
     // 상품 삭제
-    public void deleteProduct(Long userId, Long productId) {
+    public void deleteProduct(UUID userId, Long productId) {
         Product product = productRepository.findByProductIdAndUserId(productId, userId)
             .orElseThrow(() -> new UnauthorizedException("You don't have permission to delete this product"));
         
@@ -129,7 +120,7 @@ public class ProductCommandService {
     }
     
     // 상품 이미지 추가
-    public ProductResponse addProductImage(Long userId, Long productId, ProductImageRequest request) {
+    public ProductResponse addProductImage(UUID userId, Long productId, ProductImageRequest request) {
         Product product = productRepository.findByProductIdAndUserId(productId, userId)
             .orElseThrow(() -> new UnauthorizedException("You don't have permission to update this product"));
         
@@ -150,7 +141,7 @@ public class ProductCommandService {
     }
     
     // 상품 이미지 삭제
-    public void removeProductImage(Long userId, Long productId, Long imageId) {
+    public void removeProductImage(UUID userId, Long productId, Long imageId) {
         Product product = productRepository.findByProductIdAndUserId(productId, userId)
             .orElseThrow(() -> new UnauthorizedException("You don't have permission to update this product"));
         
@@ -199,8 +190,6 @@ public class ProductCommandService {
         return ProductResponse.builder()
             .productId(product.getProductId())
             .userId(product.getUserId())
-            .userEmail(product.getUserEmail())
-            .userName(product.getUserName())
             .title(product.getTitle())
             .description(product.getDescription())
             .category(product.getCategory())

@@ -19,6 +19,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/products")
@@ -69,7 +70,7 @@ public class ProductController {
     
     @GetMapping("/user/{userId}")
     public ResponseEntity<PageResponse<ProductResponse>> getProductsByUser(
-            @PathVariable Long userId,
+            @PathVariable UUID userId,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         PageResponse<ProductResponse> response = queryService.getProductsByUserId(userId, pageable);
         return ResponseEntity.ok(response);
@@ -93,7 +94,7 @@ public class ProductController {
     @PostMapping
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<ProductResponse> createProduct(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal UUID userId,
             @Valid @RequestBody ProductCreateRequest request) {
         ProductResponse response = commandService.createProduct(userId, null, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -102,7 +103,7 @@ public class ProductController {
     @PutMapping("/{productId}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<ProductResponse> updateProduct(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal UUID userId,
             @PathVariable Long productId,
             @Valid @RequestBody ProductUpdateRequest request) {
         ProductResponse response = commandService.updateProduct(userId, productId, request);
@@ -112,7 +113,7 @@ public class ProductController {
     @DeleteMapping("/{productId}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Void> deleteProduct(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal UUID userId,
             @PathVariable Long productId) {
         commandService.deleteProduct(userId, productId);
         return ResponseEntity.noContent().build();
@@ -121,7 +122,7 @@ public class ProductController {
     @PostMapping("/{productId}/images")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<ProductResponse> addProductImage(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal UUID userId,
             @PathVariable Long productId,
             @Valid @RequestBody ProductImageRequest request) {
         ProductResponse response = commandService.addProductImage(userId, productId, request);
@@ -131,7 +132,7 @@ public class ProductController {
     @DeleteMapping("/{productId}/images/{imageId}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Void> removeProductImage(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal UUID userId,
             @PathVariable Long productId,
             @PathVariable Long imageId) {
         commandService.removeProductImage(userId, productId, imageId);
@@ -142,7 +143,7 @@ public class ProductController {
     @GetMapping("/my")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<PageResponse<ProductResponse>> getMyProducts(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal UUID userId,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         PageResponse<ProductResponse> response = queryService.getProductsByUserId(userId, pageable);
         return ResponseEntity.ok(response);
@@ -151,7 +152,7 @@ public class ProductController {
     @GetMapping("/my/category/{category}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<List<ProductResponse>> getMyProductsByCategory(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal UUID userId,
             @PathVariable String category) {
         List<ProductResponse> response = queryService.getProductsByUserAndCategory(userId, category);
         return ResponseEntity.ok(response);

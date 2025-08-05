@@ -3,12 +3,11 @@ package com.sangsangplus.productservice.dto.response;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 public class ProductResponse {
     private Long productId;
-    private Long userId;
-    private String userEmail;
-    private String userName;
+    private UUID userId;
     private String title;
     private String description;
     private String category;
@@ -20,14 +19,11 @@ public class ProductResponse {
     // Constructors
     public ProductResponse() {}
     
-    public ProductResponse(Long productId, Long userId, String userEmail, String userName,
-                          String title, String description, String category, BigDecimal price,
-                          LocalDateTime createdAt, LocalDateTime updatedAt, 
-                          List<ProductImageResponse> images) {
+    public ProductResponse(Long productId, UUID userId, String title, String description, 
+                          String category, BigDecimal price, LocalDateTime createdAt, 
+                          LocalDateTime updatedAt, List<ProductImageResponse> images) {
         this.productId = productId;
         this.userId = userId;
-        this.userEmail = userEmail;
-        this.userName = userName;
         this.title = title;
         this.description = description;
         this.category = category;
@@ -44,9 +40,7 @@ public class ProductResponse {
     
     public static class ProductResponseBuilder {
         private Long productId;
-        private Long userId;
-        private String userEmail;
-        private String userName;
+        private UUID userId;
         private String title;
         private String description;
         private String category;
@@ -60,20 +54,11 @@ public class ProductResponse {
             return this;
         }
         
-        public ProductResponseBuilder userId(Long userId) {
+        public ProductResponseBuilder userId(UUID userId) {
             this.userId = userId;
             return this;
         }
         
-        public ProductResponseBuilder userEmail(String userEmail) {
-            this.userEmail = userEmail;
-            return this;
-        }
-        
-        public ProductResponseBuilder userName(String userName) {
-            this.userName = userName;
-            return this;
-        }
         
         public ProductResponseBuilder title(String title) {
             this.title = title;
@@ -111,8 +96,8 @@ public class ProductResponse {
         }
         
         public ProductResponse build() {
-            return new ProductResponse(productId, userId, userEmail, userName, title, 
-                                     description, category, price, createdAt, updatedAt, images);
+            return new ProductResponse(productId, userId, title, description, 
+                                     category, price, createdAt, updatedAt, images);
         }
     }
     
@@ -125,29 +110,14 @@ public class ProductResponse {
         this.productId = productId;
     }
     
-    public Long getUserId() {
+    public UUID getUserId() {
         return userId;
     }
     
-    public void setUserId(Long userId) {
+    public void setUserId(UUID userId) {
         this.userId = userId;
     }
     
-    public String getUserEmail() {
-        return userEmail;
-    }
-    
-    public void setUserEmail(String userEmail) {
-        this.userEmail = userEmail;
-    }
-    
-    public String getUserName() {
-        return userName;
-    }
-    
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
     
     public String getTitle() {
         return title;

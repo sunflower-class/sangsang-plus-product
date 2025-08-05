@@ -10,18 +10,19 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
     
     // 사용자별 상품 조회
-    Page<Product> findByUserId(Long userId, Pageable pageable);
+    Page<Product> findByUserId(UUID userId, Pageable pageable);
     
     // 카테고리별 상품 조회
     Page<Product> findByCategory(String category, Pageable pageable);
     
     // 사용자와 카테고리로 상품 조회
-    List<Product> findByUserIdAndCategory(Long userId, String category);
+    List<Product> findByUserIdAndCategory(UUID userId, String category);
     
     // 제목 또는 설명으로 검색 (대소문자 구분 없음)
     @Query("SELECT p FROM Product p WHERE " +
@@ -30,7 +31,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Page<Product> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
     
     // 사용자 ID와 상품 ID로 조회 (권한 체크용)
-    Optional<Product> findByProductIdAndUserId(Long productId, Long userId);
+    Optional<Product> findByProductIdAndUserId(Long productId, UUID userId);
     
     // 모든 카테고리 목록 조회
     @Query("SELECT DISTINCT p.category FROM Product p ORDER BY p.category")
@@ -47,7 +48,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findRecentProducts(Pageable pageable);
     
     // 사용자별 상품 개수
-    Long countByUserId(Long userId);
+    Long countByUserId(UUID userId);
     
     // 카테고리별 상품 개수
     Long countByCategory(String category);

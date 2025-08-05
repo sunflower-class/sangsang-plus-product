@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,7 +40,7 @@ public class ProductQueryService {
     }
     
     // 사용자별 상품 조회
-    public PageResponse<ProductResponse> getProductsByUserId(Long userId, Pageable pageable) {
+    public PageResponse<ProductResponse> getProductsByUserId(UUID userId, Pageable pageable) {
         Page<Product> productPage = productRepository.findByUserId(userId, pageable);
         Page<ProductResponse> responsePage = productPage.map(this::toProductResponse);
         return PageResponse.of(responsePage);
@@ -53,7 +54,7 @@ public class ProductQueryService {
     }
     
     // 사용자와 카테고리로 상품 조회
-    public List<ProductResponse> getProductsByUserAndCategory(Long userId, String category) {
+    public List<ProductResponse> getProductsByUserAndCategory(UUID userId, String category) {
         List<Product> products = productRepository.findByUserIdAndCategory(userId, category);
         return products.stream()
             .map(this::toProductResponse)
@@ -97,8 +98,6 @@ public class ProductQueryService {
         return ProductResponse.builder()
             .productId(product.getProductId())
             .userId(product.getUserId())
-            .userEmail(product.getUserEmail())
-            .userName(product.getUserName())
             .title(product.getTitle())
             .description(product.getDescription())
             .category(product.getCategory())

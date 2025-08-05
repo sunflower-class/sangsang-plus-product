@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "products")
@@ -15,14 +16,8 @@ public class Product {
     @Column(name = "product_id")
     private Long productId;
     
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
-    
-    @Column(name = "user_email")
-    private String userEmail;  // 사용자 이메일 저장 (캐싱 목적)
-    
-    @Column(name = "user_name")
-    private String userName;  // 사용자 이름 저장 (캐싱 목적)
+    @Column(name = "user_id", nullable = false, columnDefinition = "uuid")
+    private UUID userId;
     
     @Column(nullable = false, length = 255)
     private String title;
@@ -51,11 +46,8 @@ public class Product {
         this.updatedAt = LocalDateTime.now();
     }
     
-    public Product(Long userId, String userEmail, String userName, String title, 
-                   String description, String category, BigDecimal price) {
+    public Product(UUID userId, String title, String description, String category, BigDecimal price) {
         this.userId = userId;
-        this.userEmail = userEmail;
-        this.userName = userName;
         this.title = title;
         this.description = description;
         this.category = category;
@@ -107,28 +99,12 @@ public class Product {
         this.productId = productId;
     }
     
-    public Long getUserId() {
+    public UUID getUserId() {
         return userId;
     }
     
-    public void setUserId(Long userId) {
+    public void setUserId(UUID userId) {
         this.userId = userId;
-    }
-    
-    public String getUserEmail() {
-        return userEmail;
-    }
-    
-    public void setUserEmail(String userEmail) {
-        this.userEmail = userEmail;
-    }
-    
-    public String getUserName() {
-        return userName;
-    }
-    
-    public void setUserName(String userName) {
-        this.userName = userName;
     }
     
     public String getTitle() {

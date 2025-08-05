@@ -1,17 +1,18 @@
 package com.sangsangplus.productservice.event;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class ProductDeletedEvent {
     private Long productId;
-    private Long userId;
+    private UUID userId;
     private LocalDateTime deletedAt;
     
     public ProductDeletedEvent() {
         this.deletedAt = LocalDateTime.now();
     }
     
-    public ProductDeletedEvent(Long productId, Long userId) {
+    public ProductDeletedEvent(Long productId, UUID userId) {
         this.productId = productId;
         this.userId = userId;
         this.deletedAt = LocalDateTime.now();
@@ -26,11 +27,11 @@ public class ProductDeletedEvent {
         this.productId = productId;
     }
     
-    public Long getUserId() {
+    public UUID getUserId() {
         return userId;
     }
     
-    public void setUserId(Long userId) {
+    public void setUserId(UUID userId) {
         this.userId = userId;
     }
     

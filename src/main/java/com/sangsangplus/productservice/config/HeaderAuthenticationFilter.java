@@ -12,6 +12,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.UUID;
 
 @Component
 public class HeaderAuthenticationFilter extends OncePerRequestFilter {
@@ -34,7 +35,7 @@ public class HeaderAuthenticationFilter extends OncePerRequestFilter {
         
         if (userIdHeader != null && !userIdHeader.isEmpty()) {
             try {
-                Long userId = Long.parseLong(userIdHeader);
+                UUID userId = UUID.fromString(userIdHeader);
                 
                 // Default to USER role if not specified
                 if (userRole == null || userRole.isEmpty()) {
@@ -55,8 +56,8 @@ public class HeaderAuthenticationFilter extends OncePerRequestFilter {
                 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 logger.info("Successfully authenticated user: " + userId + " with role: " + userRole);
-            } catch (NumberFormatException e) {
-                logger.error("Invalid user ID format: " + userIdHeader);
+            } catch (IllegalArgumentException e) {
+                logger.error("Invalid UUID format for user ID: " + userIdHeader);
             }
         }
         

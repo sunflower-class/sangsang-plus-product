@@ -11,6 +11,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -37,7 +39,7 @@ class HeaderAuthenticationFilterTest {
     @Test
     void testSuccessfulAuthentication_WithUserRole() throws Exception {
         // Given
-        when(request.getHeader("X-User-Id")).thenReturn("12345");
+        when(request.getHeader("X-User-Id")).thenReturn("550e8400-e29b-41d4-a716-446655440001");
         when(request.getHeader("X-User-Role")).thenReturn("USER");
         when(request.getMethod()).thenReturn("GET");
         when(request.getRequestURI()).thenReturn("/api/products");
@@ -50,14 +52,14 @@ class HeaderAuthenticationFilterTest {
         
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         assertNotNull(auth);
-        assertEquals(12345L, auth.getPrincipal());
+        assertEquals(UUID.fromString("550e8400-e29b-41d4-a716-446655440001"), auth.getPrincipal());
         assertTrue(auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_USER")));
     }
 
     @Test
     void testSuccessfulAuthentication_WithAdminRole() throws Exception {
         // Given
-        when(request.getHeader("X-User-Id")).thenReturn("99999");
+        when(request.getHeader("X-User-Id")).thenReturn("550e8400-e29b-41d4-a716-446655440099");
         when(request.getHeader("X-User-Role")).thenReturn("ADMIN");
         when(request.getMethod()).thenReturn("DELETE");
         when(request.getRequestURI()).thenReturn("/api/products/admin/123");
@@ -70,14 +72,14 @@ class HeaderAuthenticationFilterTest {
         
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         assertNotNull(auth);
-        assertEquals(99999L, auth.getPrincipal());
+        assertEquals(UUID.fromString("550e8400-e29b-41d4-a716-446655440099"), auth.getPrincipal());
         assertTrue(auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")));
     }
 
     @Test
     void testAuthentication_WithoutRoleHeader() throws Exception {
         // Given - no X-User-Role header
-        when(request.getHeader("X-User-Id")).thenReturn("12345");
+        when(request.getHeader("X-User-Id")).thenReturn("550e8400-e29b-41d4-a716-446655440001");
         when(request.getHeader("X-User-Role")).thenReturn(null);
         when(request.getMethod()).thenReturn("GET");
         when(request.getRequestURI()).thenReturn("/api/products");
@@ -90,7 +92,7 @@ class HeaderAuthenticationFilterTest {
         
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         assertNotNull(auth);
-        assertEquals(12345L, auth.getPrincipal());
+        assertEquals(UUID.fromString("550e8400-e29b-41d4-a716-446655440001"), auth.getPrincipal());
         assertTrue(auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_USER")));
     }
 
