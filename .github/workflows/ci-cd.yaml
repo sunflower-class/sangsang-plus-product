@@ -92,20 +92,24 @@ jobs:
         mkdir -p $HOME/.kube
         echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > $HOME/.kube/config
 
-    - name: Deploy to product-service namespace
+    - name: Deploy to sangsangplus-backend namespace
       run: |
-        # Apply k8s resources (uses latest tag as defined in deployment.yaml)
-        kubectl apply -f k8s/
-        
+        # Set namespace to sangsangplus-backend in all resource files (if not already)
+        # (Assumes you have correct namespace in your YAMLs or use `-n` flags below)
+
+        # Apply k8s resources to the correct namespace
+        kubectl apply -f k8s/ -n sangsangplus-backend
+
         # Restart deployment to pull latest image
-        kubectl rollout restart deployment/product-service -n product-service
-        kubectl rollout status deployment/product-service -n product-service --timeout=600s
+        kubectl rollout restart deployment/product-service -n sangsangplus-backend
+        kubectl rollout status deployment/product-service -n sangsangplus-backend --timeout=600s
 
     - name: Run health check
       run: |
         # Wait for deployment to be ready
-        kubectl wait --for=condition=available --timeout=300s deployment/product-service -n product-service
+        kubectl wait --for=condition=available --timeout=300s deployment/product-service -n sangsangplus-backend
 
         # Health check
         curl -f https://oauth.buildingbite.com/api/products/health || exit 1
-        echo "Product Service deployment successful!"
+        echo "Product Service deployment successful!"  
+
