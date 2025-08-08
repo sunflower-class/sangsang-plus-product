@@ -11,6 +11,6 @@ COPY src ./src
 # Build the application
 RUN mvn clean package -DskipTests
 
-# Run the application
+# Run the application with proper JVM settings
 EXPOSE 8082
-ENTRYPOINT ["java", "-jar", "target/product-service-1.0.0.jar"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar target/product-service-1.0.0.jar"]

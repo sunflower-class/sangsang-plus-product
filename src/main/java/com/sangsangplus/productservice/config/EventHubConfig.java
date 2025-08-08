@@ -38,7 +38,7 @@ public class EventHubConfig {
     public EventHubConsumerClient eventHubConsumerClient() {
         return new EventHubClientBuilder()
             .connectionString(consumerConnectionString, consumerEventHubName)
-            .consumerGroup(consumerGroup)
+            .consumerGroup("$Default") // Use default consumer group
             .buildConsumerClient();
     }
 }

@@ -25,6 +25,8 @@ spec:
         env:
         - name: SPRING_PROFILES_ACTIVE
           value: "k8s"
+        - name: JAVA_OPTS
+          value: "-XX:MaxRAMPercentage=75.0 -XX:InitialRAMPercentage=50.0 -Djava.security.egd=file:/dev/./urandom"
         - name: DB_USERNAME
           valueFrom:
             secretKeyRef:
@@ -41,23 +43,27 @@ spec:
           value: "Endpoint=sb://sangsangplus-eventhubs.servicebus.windows.net/;SharedAccessKeyName=UserConsumerKey;SharedAccessKey=ZPRtTjEQZ9Wi4VoKiyNeViYVjvMvtBHdG+AEhCTFjGI=;EntityPath=user-events"
         resources:
           requests:
-            memory: "512Mi"
-            cpu: "250m"
-          limits:
-            memory: "1Gi"
+            memory: "768Mi"
             cpu: "500m"
+          limits:
+            memory: "1536Mi"
+            cpu: "1000m"
         livenessProbe:
           httpGet:
             path: /health
             port: 8082
-          initialDelaySeconds: 60
+          initialDelaySeconds: 120
+          timeoutSeconds: 5
           periodSeconds: 10
+          failureThreshold: 3
         readinessProbe:
           httpGet:
             path: /health
             port: 8082
-          initialDelaySeconds: 30
+          initialDelaySeconds: 90
+          timeoutSeconds: 5
           periodSeconds: 5
+          failureThreshold: 5
         volumeMounts:
         - name: config
           mountPath: /app/config
