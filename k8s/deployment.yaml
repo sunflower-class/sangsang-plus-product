@@ -44,11 +44,11 @@ spec:
         
         resources:
           requests:
-            memory: "550Mi"
-            cpu: "25m"
+            memory: "650Mi"
+            cpu: "75m"
           limits:
-            memory: "768Mi"
-            cpu: "200m"
+            memory: "1Gi"
+            cpu: "700m"
             
         livenessProbe:
           httpGet:
@@ -93,3 +93,4 @@ spec:
   selector:
 
     app: product-service
+
