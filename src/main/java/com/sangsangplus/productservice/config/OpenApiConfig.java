@@ -7,6 +7,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.servers.Server;
+import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -40,5 +41,13 @@ public class OpenApiConfig {
                     .bearerFormat("JWT")
                     .description("JWT 토큰을 사용한 인증 (게이트웨이에서 X-User-Id 헤더로 변환)")))
             .addSecurityItem(new SecurityRequirement().addList("bearerAuth"));
+    }
+    
+    @Bean
+    public GroupedOpenApi publicApi() {
+        return GroupedOpenApi.builder()
+            .group("public")
+            .pathsToMatch("/api/products/**")
+            .build();
     }
 }

@@ -6,7 +6,6 @@ import com.sangsangplus.productservice.dto.request.ProductImageRequest;
 import com.sangsangplus.productservice.dto.request.ProductUpdateRequest;
 import com.sangsangplus.productservice.dto.response.PageResponse;
 import com.sangsangplus.productservice.dto.response.ProductDetailsResponse;
-import java.util.List;
 import com.sangsangplus.productservice.dto.response.ProductResponse;
 import com.sangsangplus.productservice.service.command.ProductCommandService;
 import com.sangsangplus.productservice.service.query.ProductQueryService;
