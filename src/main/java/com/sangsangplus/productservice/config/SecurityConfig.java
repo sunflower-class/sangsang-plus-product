@@ -39,7 +39,13 @@ public class SecurityConfig {
                     "/api/products/category/{category}",
                     "/api/products/search",
                     "/api/products/categories",
-                    "/api/products/recent"
+                    "/api/products/recent",
+                    // Swagger UI endpoints
+                    "/swagger-ui.html",
+                    "/swagger-ui/**",
+                    "/v3/api-docs/**",
+                    "/swagger-resources/**",
+                    "/webjars/**"
                 ).permitAll()
                 // Authenticated endpoints
                 .requestMatchers(
