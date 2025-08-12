@@ -32,8 +32,11 @@ CREATE TABLE product_images (
 );
 
 CREATE TABLE product_details (
-    product_id BIGINT PRIMARY KEY,
-    content TEXT NOT NULL,  -- HTML 내용
+    detail_id BIGSERIAL PRIMARY KEY,
+    product_id BIGINT NOT NULL,
+    title VARCHAR(255),                       -- 섹션 제목 (선택사항)
+    content TEXT NOT NULL,                    -- HTML + CSS 내용 (무제한)
+    display_order INTEGER DEFAULT 0,         -- 표시 순서
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (product_id) 
@@ -47,6 +50,8 @@ CREATE INDEX idx_products_category ON products(category);
 CREATE INDEX idx_products_created_at ON products(created_at DESC);
 CREATE INDEX idx_product_images_product_id ON product_images(product_id);
 CREATE INDEX idx_product_images_display_order ON product_images(product_id, display_order);
+CREATE INDEX idx_product_details_product_id ON product_details(product_id);
+CREATE INDEX idx_product_details_display_order ON product_details(product_id, display_order);
 
 -- 5. Add comments for documentation
 COMMENT ON TABLE products IS 'Product information table with UUID user references';
