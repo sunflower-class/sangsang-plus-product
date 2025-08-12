@@ -43,9 +43,11 @@ server:
 # API Documentation Configuration
 springdoc:
   api-docs:
-    path: /v3/api-docs
+    path: /api/products/v3/api-docs
   swagger-ui:
-    path: /swagger-ui.html
+    path: /api/products/swagger-ui.html
+    config-url: /api/products/v3/api-docs/swagger-config
+    url: /api/products/v3/api-docs
     disable-swagger-default-url: true
     display-request-duration: true
     groups-order: DESC

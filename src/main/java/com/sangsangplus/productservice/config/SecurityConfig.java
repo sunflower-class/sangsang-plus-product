@@ -40,7 +40,13 @@ public class SecurityConfig {
                     "/api/products/search",
                     "/api/products/categories",
                     "/api/products/recent",
-                    // Swagger UI endpoints
+                    // Swagger UI endpoints with /api/products prefix
+                    "/api/products/swagger-ui.html",
+                    "/api/products/swagger-ui/**",
+                    "/api/products/v3/api-docs/**",
+                    "/api/products/swagger-resources/**",
+                    "/api/products/webjars/**",
+                    // Also allow without prefix for local testing
                     "/swagger-ui.html",
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
