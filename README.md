@@ -34,6 +34,7 @@
 | GET | `/api/products/search?keyword={keyword}` | 상품 검색 |
 | GET | `/api/products/user/{userId}` | 특정 사용자 상품 조회 |
 | GET | `/api/products/category/{category}` | 카테고리별 상품 조회 |
+| GET | `/api/products/{productId}/details` | 상품 상세 정보 조회 |
 
 ### 인증 필요 엔드포인트 (X-User-Id 헤더 필요)
 
@@ -44,6 +45,8 @@
 | DELETE | `/api/products/{productId}` | 상품 삭제 | 상품 소유자 |
 | POST | `/api/products/{productId}/images` | 상품 이미지 추가 | 상품 소유자 |
 | DELETE | `/api/products/{productId}/images/{imageId}` | 상품 이미지 삭제 | 상품 소유자 |
+| PUT | `/api/products/{productId}/details` | 상품 상세 정보 생성/수정 | 상품 소유자 |
+| DELETE | `/api/products/{productId}/details` | 상품 상세 정보 삭제 | 상품 소유자 |
 | GET | `/api/products/my` | 내 상품 조회 | 인증된 사용자 |
 | GET | `/api/products/my/category/{category}` | 내 상품 카테고리별 조회 | 인증된 사용자 |
 
@@ -53,6 +56,8 @@
 |--------|----------|-------------|------|
 | PUT | `/api/products/admin/{productId}` | 관리자 상품 수정 | ADMIN |
 | DELETE | `/api/products/admin/{productId}` | 관리자 상품 삭제 | ADMIN |
+| PUT | `/api/products/admin/{productId}/details` | 관리자 상품 상세 정보 생성/수정 | ADMIN |
+| DELETE | `/api/products/admin/{productId}/details` | 관리자 상품 상세 정보 삭제 | ADMIN |
 
 ## 🔐 인증 방식
 
@@ -104,6 +109,20 @@ CREATE TABLE product_images (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_product_images_product
         FOREIGN KEY (product_id) 
+        REFERENCES products(product_id) 
+        ON DELETE CASCADE
+);
+```
+
+### Product Details 테이블
+
+```sql
+CREATE TABLE product_details (
+    product_id BIGINT PRIMARY KEY,
+    content TEXT NOT NULL,                    -- HTML 상세 내용
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) 
         REFERENCES products(product_id) 
         ON DELETE CASCADE
 );
