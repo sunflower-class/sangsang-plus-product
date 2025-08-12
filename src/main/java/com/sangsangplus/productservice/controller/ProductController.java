@@ -1,12 +1,15 @@
 package com.sangsangplus.productservice.controller;
 
 import com.sangsangplus.productservice.dto.request.ProductCreateRequest;
+import com.sangsangplus.productservice.dto.request.ProductDetailsRequest;
 import com.sangsangplus.productservice.dto.request.ProductImageRequest;
 import com.sangsangplus.productservice.dto.request.ProductUpdateRequest;
 import com.sangsangplus.productservice.dto.response.PageResponse;
+import com.sangsangplus.productservice.dto.response.ProductDetailsResponse;
 import com.sangsangplus.productservice.dto.response.ProductResponse;
 import com.sangsangplus.productservice.service.command.ProductCommandService;
 import com.sangsangplus.productservice.service.query.ProductQueryService;
+import com.sangsangplus.productservice.service.ProductDetailsService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
@@ -40,10 +43,14 @@ public class ProductController {
     
     private final ProductCommandService commandService;
     private final ProductQueryService queryService;
+    private final ProductDetailsService productDetailsService;
     
-    public ProductController(ProductCommandService commandService, ProductQueryService queryService) {
+    public ProductController(ProductCommandService commandService, 
+                             ProductQueryService queryService,
+                             ProductDetailsService productDetailsService) {
         this.commandService = commandService;
         this.queryService = queryService;
+        this.productDetailsService = productDetailsService;
     }
     
     // Health check endpoint
@@ -167,7 +174,8 @@ public class ProductController {
         commandService.deleteProduct(userId, productId);
         return ResponseEntity.noContent().build();
     }
-    
+
+    // Product Images Related
     @PostMapping("/{productId}/images")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<ProductResponse> addProductImage(
@@ -185,6 +193,56 @@ public class ProductController {
             @PathVariable Long productId,
             @PathVariable Long imageId) {
         commandService.removeProductImage(userId, productId, imageId);
+        return ResponseEntity.noContent().build();
+    }
+    
+    // Product Details Related
+    @GetMapping("/{productId}/details")
+    @Operation(summary = "상품 상세 정보 조회", description = "상품의 상세 HTML 내용을 조회합니다")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "상품 상세 정보 조회 성공"),
+        @ApiResponse(responseCode = "404", description = "상품 상세 정보를 찾을 수 없음")
+    })
+    public ResponseEntity<ProductDetailsResponse> getProductDetails(
+            @Parameter(description = "상품 ID") @PathVariable Long productId) {
+        return productDetailsService.getProductDetails(productId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+    
+    @PutMapping("/{productId}/details")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @Operation(summary = "상품 상세 정보 생성/수정", description = "상품의 상세 HTML 내용을 생성하거나 수정합니다",
+               security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "상품 상세 정보 수정 성공"),
+        @ApiResponse(responseCode = "201", description = "상품 상세 정보 생성 성공"),
+        @ApiResponse(responseCode = "401", description = "인증 필요"),
+        @ApiResponse(responseCode = "403", description = "권한 없음"),
+        @ApiResponse(responseCode = "404", description = "상품을 찾을 수 없음")
+    })
+    public ResponseEntity<ProductDetailsResponse> createOrUpdateProductDetails(
+            @Parameter(hidden = true) @AuthenticationPrincipal UUID userId,
+            @Parameter(description = "상품 ID") @PathVariable Long productId,
+            @Parameter(description = "상품 상세 정보") @Valid @RequestBody ProductDetailsRequest request) {
+        ProductDetailsResponse response = productDetailsService.createOrUpdateProductDetails(userId, productId, request);
+        return ResponseEntity.ok(response);
+    }
+    
+    @DeleteMapping("/{productId}/details")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @Operation(summary = "상품 상세 정보 삭제", description = "상품의 상세 HTML 내용을 삭제합니다",
+               security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "상품 상세 정보 삭제 성공"),
+        @ApiResponse(responseCode = "401", description = "인증 필요"),
+        @ApiResponse(responseCode = "403", description = "권한 없음"),
+        @ApiResponse(responseCode = "404", description = "상품을 찾을 수 없음")
+    })
+    public ResponseEntity<Void> deleteProductDetails(
+            @Parameter(hidden = true) @AuthenticationPrincipal UUID userId,
+            @Parameter(description = "상품 ID") @PathVariable Long productId) {
+        productDetailsService.deleteProductDetails(userId, productId);
         return ResponseEntity.noContent().build();
     }
     
@@ -222,6 +280,28 @@ public class ProductController {
     public ResponseEntity<Void> adminDeleteProduct(
             @PathVariable Long productId) {
         commandService.adminDeleteProduct(productId);
+        return ResponseEntity.noContent().build();
+    }
+    
+    // Admin Product Details endpoints
+    @PutMapping("/admin/{productId}/details")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "[관리자] 상품 상세 정보 생성/수정", description = "관리자 권한으로 상품 상세 정보를 생성하거나 수정합니다",
+               security = @SecurityRequirement(name = "bearerAuth"))
+    public ResponseEntity<ProductDetailsResponse> adminCreateOrUpdateProductDetails(
+            @Parameter(description = "상품 ID") @PathVariable Long productId,
+            @Parameter(description = "상품 상세 정보") @Valid @RequestBody ProductDetailsRequest request) {
+        ProductDetailsResponse response = productDetailsService.adminCreateOrUpdateProductDetails(productId, request);
+        return ResponseEntity.ok(response);
+    }
+    
+    @DeleteMapping("/admin/{productId}/details")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "[관리자] 상품 상세 정보 삭제", description = "관리자 권한으로 상품 상세 정보를 삭제합니다",
+               security = @SecurityRequirement(name = "bearerAuth"))
+    public ResponseEntity<Void> adminDeleteProductDetails(
+            @Parameter(description = "상품 ID") @PathVariable Long productId) {
+        productDetailsService.adminDeleteProductDetails(productId);
         return ResponseEntity.noContent().build();
     }
     

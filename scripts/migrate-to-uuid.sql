@@ -31,6 +31,16 @@ CREATE TABLE product_images (
         ON DELETE CASCADE
 );
 
+CREATE TABLE product_details (
+    product_id BIGINT PRIMARY KEY,
+    content TEXT NOT NULL,  -- HTML 내용
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) 
+        REFERENCES products(product_id) 
+        ON DELETE CASCADE
+);
+
 -- 4. Create indexes for better performance
 CREATE INDEX idx_products_user_id ON products(user_id);
 CREATE INDEX idx_products_category ON products(category);
