@@ -34,14 +34,16 @@
 | GET | `/api/products/search?keyword={keyword}` | 상품 검색 |
 | GET | `/api/products/user/{userId}` | 특정 사용자 상품 조회 |
 | GET | `/api/products/category/{category}` | 카테고리별 상품 조회 |
+| **POST** | **`/api/products`** | **상품 등록 (서버간 통신용)** |
 | GET | `/api/products/{productId}/details` | 상품 상세 정보 목록 조회 |
 | GET | `/api/products/details/{detailId}` | 특정 상품 상세 정보 조회 |
+
+> ⚠️ **중요**: `POST /api/products` 엔드포인트는 다른 서버에서 호출하기 위해 인증 없이 접근 가능하지만, X-User-Id 헤더에서 유효한 UUID를 전달받아 검증합니다.
 
 ### 인증 필요 엔드포인트 (X-User-Id 헤더 필요)
 
 | Method | Endpoint | Description | 권한 |
 |--------|----------|-------------|------|
-| POST | `/api/products` | 상품 등록 | 인증된 사용자 |
 | PUT | `/api/products/{productId}` | 상품 수정 | 상품 소유자 |
 | DELETE | `/api/products/{productId}` | 상품 삭제 | 상품 소유자 |
 | POST | `/api/products/{productId}/images` | 상품 이미지 추가 | 상품 소유자 |
@@ -93,48 +95,32 @@ curl -X POST "http://localhost:8082/api/products" \
 CREATE TABLE products (
     product_id BIGSERIAL PRIMARY KEY,
     user_id UUID NOT NULL,                    -- 상품 소유자 UUID
-    title VARCHAR(255) NOT NULL,
-    description TEXT,
-    category VARCHAR(100) NOT NULL,
-    price DECIMAL(10,2) NOT NULL,
+    name VARCHAR(255) NOT NULL,               -- 상품명 (파싱된 첫 번째 줄 또는 추출된 제목)
+    description TEXT,                         -- 전체 상품 설명 (원본 텍스트)
+    category VARCHAR(100) NOT NULL,           -- 카테고리 (텍스트에서 추출)
+    price DECIMAL(10,2) NOT NULL CHECK (price > 0),  -- 가격 (숫자 추출)
+    brand VARCHAR(100),                       -- 브랜드/제조사 (텍스트에서 추출)
+    source VARCHAR(50) DEFAULT 'DETAIL_SERVICE',     -- 출처 ('DETAIL_SERVICE')
+    status VARCHAR(20) DEFAULT 'ACTIVE',      -- 상태 ('ACTIVE', 'DRAFT', 'INACTIVE')
+    metadata TEXT,                            -- 원본 입력값과 파싱 정보 (JSON 형태)
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
 
-### Product Images 테이블
+> 📝 **필드 설명**:
+> - `name`: 상품명 (기존 `title`에서 변경)
+> - `brand`: 브랜드/제조사 정보
+> - `source`: 데이터 출처 (기본값: 'DETAIL_SERVICE')
+> - `status`: 상품 상태 (ACTIVE/DRAFT/INACTIVE)
+> - `metadata`: 원본 입력값과 파싱 정보를 JSON으로 저장
 
-```sql
-CREATE TABLE product_images (
-    image_id BIGSERIAL PRIMARY KEY,
-    product_id BIGINT NOT NULL,
-    url VARCHAR(500) NOT NULL,
-    alt_text VARCHAR(255),
-    display_order INTEGER,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_product_images_product
-        FOREIGN KEY (product_id) 
-        REFERENCES products(product_id) 
-        ON DELETE CASCADE
-);
-```
+### ⚠️ 중요 변경사항
 
-### Product Details 테이블
-
-```sql
-CREATE TABLE product_details (
-    detail_id BIGSERIAL PRIMARY KEY,
-    product_id BIGINT NOT NULL,
-    title VARCHAR(255),                       -- 섹션 제목 (선택사항)
-    content TEXT NOT NULL,                    -- HTML + CSS 내용 (무제한)
-    display_order INTEGER DEFAULT 0,         -- 표시 순서
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (product_id) 
-        REFERENCES products(product_id) 
-        ON DELETE CASCADE
-);
-```
+**Product Images & Product Details 테이블 제거**:
+- `product_images` 테이블은 **이미지 서비스**로 이동
+- `product_details` 테이블은 **상세정보 서비스**로 이동
+- 본 서비스는 **기본 상품 정보만** 관리
 
 ## 🔧 환경 변수
 
@@ -294,24 +280,19 @@ curl "https://oauth.buildingbite.com/api/products/categories"
 #### 상품 등록
 
 ```bash
+# 서버간 통신용 (인증 없이 접근 가능, X-User-Id 헤더 필요)
 curl -X POST "https://oauth.buildingbite.com/api/products" \
-  -H "Authorization: Bearer your_jwt_token" \
+  -H "X-User-Id: 550e8400-e29b-41d4-a716-446655440001" \
   -H "Content-Type: application/json" \
   -d '{
-    "title": "MacBook Pro 16인치",
+    "name": "MacBook Pro 16인치",
     "description": "2022년 구매, 거의 새 제품",
     "category": "전자제품",
     "price": 2500000,
-    "images": [
-      {
-        "url": "https://example.com/image1.jpg",
-        "altText": "MacBook 전면"
-      },
-      {
-        "url": "https://example.com/image2.jpg", 
-        "altText": "MacBook 측면"
-      }
-    ]
+    "brand": "Apple",
+    "source": "DETAIL_SERVICE",
+    "status": "ACTIVE",
+    "metadata": "{\"originalText\": \"MacBook Pro 16인치 판매합니다...\", \"parsedAt\": \"2024-08-15T10:30:00Z\"}"
   }'
 ```
 
@@ -322,10 +303,12 @@ curl -X PUT "https://oauth.buildingbite.com/api/products/1" \
   -H "Authorization: Bearer your_jwt_token" \
   -H "Content-Type: application/json" \
   -d '{
-    "title": "MacBook Pro 16인치 (가격 인하)",
+    "name": "MacBook Pro 16인치 (가격 인하)",
     "description": "2022년 구매, 거의 새 제품 - 빠른 판매 원함",
     "category": "전자제품",
-    "price": 2200000
+    "price": 2200000,
+    "brand": "Apple",
+    "status": "ACTIVE"
   }'
 ```
 
@@ -368,13 +351,16 @@ curl -X DELETE "https://oauth.buildingbite.com/api/products/1/images/5" \
 # 상품 등록 (개발용)
 curl -X POST "http://localhost:8082/api/products" \
   -H "X-User-Id: 550e8400-e29b-41d4-a716-446655440001" \
-  -H "X-User-Role: USER" \
   -H "Content-Type: application/json" \
   -d '{
-    "title": "테스트 상품",
+    "name": "테스트 상품",
     "description": "로컬 개발환경 테스트",
     "category": "전자제품",
-    "price": 10000
+    "price": 10000,
+    "brand": "테스트브랜드",
+    "source": "DETAIL_SERVICE",
+    "status": "ACTIVE",
+    "metadata": "{\"test\": true}"
   }'
 
 # 내 상품 조회 (개발용)
@@ -391,10 +377,12 @@ curl -X PUT "https://oauth.buildingbite.com/api/products/admin/1" \
   -H "Authorization: Bearer admin_jwt_token" \
   -H "Content-Type: application/json" \
   -d '{
-    "title": "관리자가 수정한 상품",
+    "name": "관리자가 수정한 상품",
     "description": "부적절한 내용 수정됨",
     "category": "전자제품",
-    "price": 1500000
+    "price": 1500000,
+    "brand": "Apple",
+    "status": "ACTIVE"
   }'
 
 # 관리자 권한으로 상품 삭제
@@ -410,21 +398,17 @@ curl -X DELETE "https://oauth.buildingbite.com/api/products/admin/1" \
 {
   "productId": 1,
   "userId": "550e8400-e29b-41d4-a716-446655440001",
-  "title": "MacBook Pro 16인치",
+  "name": "MacBook Pro 16인치",
   "description": "2022년 구매, 거의 새 제품",
   "category": "전자제품",
   "price": 2500000,
+  "brand": "Apple",
+  "source": "DETAIL_SERVICE",
+  "status": "ACTIVE",
+  "metadata": "{\"originalText\": \"MacBook Pro 16인치 판매합니다...\", \"parsedAt\": \"2024-08-15T10:30:00Z\"}",
   "createdAt": "2024-08-05T04:30:00.000Z",
   "updatedAt": "2024-08-05T04:30:00.000Z",
-  "images": [
-    {
-      "imageId": 1,
-      "url": "https://example.com/image1.jpg",
-      "altText": "MacBook 전면",
-      "displayOrder": 0,
-      "createdAt": "2024-08-05T04:30:00.000Z"
-    }
-  ]
+  "images": []
 }
 ```
 
@@ -436,7 +420,16 @@ curl -X DELETE "https://oauth.buildingbite.com/api/products/admin/1" \
   "timestamp": "2024-08-05T04:30:00.000Z",
   "status": 400,
   "error": "Bad Request",
-  "message": "제목은 필수입니다",
+  "message": "상품명은 필수입니다",
+  "path": "/api/products"
+}
+
+// 400 Bad Request - 잘못된 UUID 형식
+{
+  "timestamp": "2024-08-05T04:30:00.000Z",
+  "status": 400,
+  "error": "Bad Request",
+  "message": "Invalid UUID format in X-User-Id header",
   "path": "/api/products"
 }
 
@@ -544,18 +537,31 @@ mvn test -Dtest=ProductLifecycleIntegrationTest
 
 ## 🔄 주요 변경사항
 
-### v2.0.0 (최신)
+### v3.0.0 (최신) - 서버간 통신 최적화
+- **상품 생성 엔드포인트 변경**: `POST /api/products`가 인증 없이 접근 가능 (서버간 통신용)
+- **데이터 구조 개선**: 
+  - `title` → `name`으로 필드명 변경
+  - `brand`, `source`, `status`, `metadata` 필드 추가
+- **UUID 검증 강화**: X-User-Id 헤더의 UUID 형식 엄격 검증
+- **테이블 분리**: product_images, product_details 테이블을 별도 서비스로 이동
+- **메타데이터 지원**: 원본 데이터와 파싱 정보를 JSON으로 저장
+
+### v2.0.0
 - **JWT 직접 파싱 제거**: 게이트웨이에서 X-User-Id 헤더로 전달받도록 변경
 - **UUID 사용자 ID**: Long → UUID 타입으로 변경
 - **사용자 정보 정규화**: user_email, user_name 필드 제거 (user_id만 저장)
 - **의존성 간소화**: JWT 라이브러리 제거
 - **헬스체크 추가**: `/api/products/health` 엔드포인트 추가
 
-### 마이그레이션 가이드
+### 마이그레이션 가이드 (v2.0.0 → v3.0.0)
 1. 데이터베이스 백업
-2. `scripts/migrate-to-uuid.sql` 실행
-3. 게이트웨이에서 X-User-Id, X-User-Role 헤더 전달 확인
-4. 새 버전 배포
+2. `scripts/migrate-to-uuid.sql` 실행 (새로운 스키마 적용)
+3. API 클라이언트에서 다음 변경사항 적용:
+   - `title` → `name` 필드명 변경
+   - 새 필드들 (`brand`, `source`, `status`, `metadata`) 처리 로직 추가
+   - 상품 생성 시 X-User-Id 헤더 필수 전달
+4. 이미지/상세정보 관련 로직을 별도 서비스로 이전
+5. 새 버전 배포
 
 ## 🤝 기여하기
 

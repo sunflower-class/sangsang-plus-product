@@ -14,7 +14,6 @@ public class ProductResponse {
     private BigDecimal price;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private List<ProductImageResponse> images;
     private String brand;
     private String source;
     private String status;
@@ -25,8 +24,7 @@ public class ProductResponse {
     
     public ProductResponse(Long productId, UUID userId, String name, String description, 
                           String category, BigDecimal price, LocalDateTime createdAt, 
-                          LocalDateTime updatedAt, List<ProductImageResponse> images,
-                          String brand, String source, String status, String metadata) {
+                          LocalDateTime updatedAt, String brand, String source, String status, String metadata) {
         this.productId = productId;
         this.userId = userId;
         this.name = name;
@@ -35,7 +33,6 @@ public class ProductResponse {
         this.price = price;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
-        this.images = images;
         this.brand = brand;
         this.source = source;
         this.status = status;
@@ -56,7 +53,6 @@ public class ProductResponse {
         private BigDecimal price;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
-        private List<ProductImageResponse> images;
         private String brand;
         private String source;
         private String status;
@@ -103,10 +99,6 @@ public class ProductResponse {
             return this;
         }
         
-        public ProductResponseBuilder images(List<ProductImageResponse> images) {
-            this.images = images;
-            return this;
-        }
         
         public ProductResponseBuilder brand(String brand) {
             this.brand = brand;
@@ -130,8 +122,7 @@ public class ProductResponse {
         
         public ProductResponse build() {
             return new ProductResponse(productId, userId, name, description, 
-                                     category, price, createdAt, updatedAt, images,
-                                     brand, source, status, metadata);
+                                     category, price, createdAt, updatedAt, brand, source, status, metadata);
         }
     }
     
@@ -201,13 +192,6 @@ public class ProductResponse {
         this.updatedAt = updatedAt;
     }
     
-    public List<ProductImageResponse> getImages() {
-        return images;
-    }
-    
-    public void setImages(List<ProductImageResponse> images) {
-        this.images = images;
-    }
     
     public String getBrand() {
         return brand;

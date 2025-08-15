@@ -18,10 +18,8 @@ public class ProductCreateRequest {
     
     @NotNull(message = "가격은 필수입니다")
     @DecimalMin(value = "0.0", inclusive = false, message = "가격은 0보다 커야 합니다")
-    @Digits(integer = 8, fraction = 2, message = "가격 형식이 올바르지 않습니다")
+    @Digits(integer = 8, fraction = 2, message = "가격 형식이 올바른지 않습니다")
     private BigDecimal price;
-    
-    private List<ProductImageRequest> images;
     
     private String brand;
     
@@ -35,13 +33,11 @@ public class ProductCreateRequest {
     public ProductCreateRequest() {}
     
     public ProductCreateRequest(String name, String description, String category, 
-                               BigDecimal price, List<ProductImageRequest> images, 
-                               String brand, String source, String status, String metadata) {
+                               BigDecimal price, String brand, String source, String status, String metadata) {
         this.name = name;
         this.description = description;
         this.category = category;
         this.price = price;
-        this.images = images;
         this.brand = brand;
         this.source = source;
         this.status = status;
@@ -81,13 +77,6 @@ public class ProductCreateRequest {
         this.price = price;
     }
     
-    public List<ProductImageRequest> getImages() {
-        return images;
-    }
-    
-    public void setImages(List<ProductImageRequest> images) {
-        this.images = images;
-    }
     
     public String getBrand() {
         return brand;
@@ -132,7 +121,6 @@ public class ProductCreateRequest {
                ", source='" + source + '\'' +
                ", status='" + status + '\'' +
                ", metadata='" + metadata + '\'' +
-               ", images=" + (images != null ? images.size() + " images" : "null") +
                '}';
     }
 }

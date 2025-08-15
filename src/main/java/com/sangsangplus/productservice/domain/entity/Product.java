@@ -3,8 +3,6 @@ package com.sangsangplus.productservice.domain.entity;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -49,8 +47,6 @@ public class Product {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductImage> images = new ArrayList<>();
     
     // Constructors
     public Product() {
@@ -73,15 +69,6 @@ public class Product {
     }
     
     // 비즈니스 메서드
-    public void addImage(ProductImage image) {
-        images.add(image);
-        image.setProduct(this);
-    }
-    
-    public void removeImage(ProductImage image) {
-        images.remove(image);
-        image.setProduct(null);
-    }
     
     public void updateProduct(String name, String description, String category, BigDecimal price, String brand, String status) {
         this.name = name;
@@ -173,13 +160,6 @@ public class Product {
         this.updatedAt = updatedAt;
     }
     
-    public List<ProductImage> getImages() {
-        return images;
-    }
-    
-    public void setImages(List<ProductImage> images) {
-        this.images = images;
-    }
     
     public String getBrand() {
         return brand;

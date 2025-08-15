@@ -85,16 +85,6 @@ public class ProductQueryService {
     
     // Entity를 Response DTO로 변환
     private ProductResponse toProductResponse(Product product) {
-        List<ProductImageResponse> imageResponses = product.getImages().stream()
-            .map(image -> new ProductImageResponse(
-                image.getImageId(),
-                image.getUrl(),
-                image.getAltText(),
-                image.getDisplayOrder(),
-                image.getCreatedAt()
-            ))
-            .collect(Collectors.toList());
-        
         return ProductResponse.builder()
             .productId(product.getProductId())
             .userId(product.getUserId())
@@ -108,7 +98,6 @@ public class ProductQueryService {
             .metadata(product.getMetadata())
             .createdAt(product.getCreatedAt())
             .updatedAt(product.getUpdatedAt())
-            .images(imageResponses)
             .build();
     }
 }
