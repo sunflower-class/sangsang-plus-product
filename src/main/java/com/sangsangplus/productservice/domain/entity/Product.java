@@ -20,7 +20,7 @@ public class Product {
     private UUID userId;
     
     @Column(nullable = false, length = 255)
-    private String title;
+    private String name;
     
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -30,6 +30,18 @@ public class Product {
     
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
+    
+    @Column(length = 100)
+    private String brand;
+    
+    @Column(length = 50)
+    private String source;
+    
+    @Column(length = 20)
+    private String status;
+    
+    @Column(columnDefinition = "TEXT")
+    private String metadata;
     
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -46,12 +58,16 @@ public class Product {
         this.updatedAt = LocalDateTime.now();
     }
     
-    public Product(UUID userId, String title, String description, String category, BigDecimal price) {
+    public Product(UUID userId, String name, String description, String category, BigDecimal price, String brand, String source, String status, String metadata) {
         this.userId = userId;
-        this.title = title;
+        this.name = name;
         this.description = description;
         this.category = category;
         this.price = price;
+        this.brand = brand;
+        this.source = source != null ? source : "DETAIL_SERVICE";
+        this.status = status != null ? status : "ACTIVE";
+        this.metadata = metadata;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
@@ -67,11 +83,13 @@ public class Product {
         image.setProduct(null);
     }
     
-    public void updateProduct(String title, String description, String category, BigDecimal price) {
-        this.title = title;
+    public void updateProduct(String name, String description, String category, BigDecimal price, String brand, String status) {
+        this.name = name;
         this.description = description;
         this.category = category;
         this.price = price;
+        this.brand = brand;
+        this.status = status;
         this.updatedAt = LocalDateTime.now();
     }
     
@@ -107,12 +125,12 @@ public class Product {
         this.userId = userId;
     }
     
-    public String getTitle() {
-        return title;
+    public String getName() {
+        return name;
     }
     
-    public void setTitle(String title) {
-        this.title = title;
+    public void setName(String name) {
+        this.name = name;
     }
     
     public String getDescription() {
@@ -161,5 +179,37 @@ public class Product {
     
     public void setImages(List<ProductImage> images) {
         this.images = images;
+    }
+    
+    public String getBrand() {
+        return brand;
+    }
+    
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+    
+    public String getSource() {
+        return source;
+    }
+    
+    public void setSource(String source) {
+        this.source = source;
+    }
+    
+    public String getStatus() {
+        return status;
+    }
+    
+    public void setStatus(String status) {
+        this.status = status;
+    }
+    
+    public String getMetadata() {
+        return metadata;
+    }
+    
+    public void setMetadata(String metadata) {
+        this.metadata = metadata;
     }
 }

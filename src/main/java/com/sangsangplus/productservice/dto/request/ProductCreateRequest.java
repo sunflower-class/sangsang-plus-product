@@ -6,9 +6,9 @@ import java.util.List;
 
 public class ProductCreateRequest {
     
-    @NotBlank(message = "제목은 필수입니다")
-    @Size(max = 255, message = "제목은 255자를 초과할 수 없습니다")
-    private String title;
+    @NotBlank(message = "상품명은 필수입니다")
+    @Size(max = 255, message = "상품명은 255자를 초과할 수 없습니다")
+    private String name;
     
     private String description;
     
@@ -23,25 +23,38 @@ public class ProductCreateRequest {
     
     private List<ProductImageRequest> images;
     
+    private String brand;
+    
+    private String source;
+    
+    private String status;
+    
+    private String metadata;
+    
     // Constructors
     public ProductCreateRequest() {}
     
-    public ProductCreateRequest(String title, String description, String category, 
-                               BigDecimal price, List<ProductImageRequest> images) {
-        this.title = title;
+    public ProductCreateRequest(String name, String description, String category, 
+                               BigDecimal price, List<ProductImageRequest> images, 
+                               String brand, String source, String status, String metadata) {
+        this.name = name;
         this.description = description;
         this.category = category;
         this.price = price;
         this.images = images;
+        this.brand = brand;
+        this.source = source;
+        this.status = status;
+        this.metadata = metadata;
     }
     
     // Getters and Setters
-    public String getTitle() {
-        return title;
+    public String getName() {
+        return name;
     }
     
-    public void setTitle(String title) {
-        this.title = title;
+    public void setName(String name) {
+        this.name = name;
     }
     
     public String getDescription() {
@@ -76,13 +89,49 @@ public class ProductCreateRequest {
         this.images = images;
     }
     
+    public String getBrand() {
+        return brand;
+    }
+    
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+    
+    public String getSource() {
+        return source;
+    }
+    
+    public void setSource(String source) {
+        this.source = source;
+    }
+    
+    public String getStatus() {
+        return status;
+    }
+    
+    public void setStatus(String status) {
+        this.status = status;
+    }
+    
+    public String getMetadata() {
+        return metadata;
+    }
+    
+    public void setMetadata(String metadata) {
+        this.metadata = metadata;
+    }
+    
     @Override
     public String toString() {
         return "ProductCreateRequest{" +
-               "title='" + title + '\'' +
+               "name='" + name + '\'' +
                ", description='" + description + '\'' +
                ", category='" + category + '\'' +
                ", price=" + price +
+               ", brand='" + brand + '\'' +
+               ", source='" + source + '\'' +
+               ", status='" + status + '\'' +
+               ", metadata='" + metadata + '\'' +
                ", images=" + (images != null ? images.size() + " images" : "null") +
                '}';
     }

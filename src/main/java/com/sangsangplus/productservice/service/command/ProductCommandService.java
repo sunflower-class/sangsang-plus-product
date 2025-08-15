@@ -51,10 +51,14 @@ public class ProductCommandService {
         // Product 엔티티 생성
         Product product = new Product(
             userId,
-            request.getTitle(),
+            request.getName(),
             request.getDescription(),
             request.getCategory(),
-            request.getPrice()
+            request.getPrice(),
+            request.getBrand(),
+            request.getSource(),
+            request.getStatus(),
+            request.getMetadata()
         );
         
         logger.info("Created product entity: {}", product);
@@ -80,7 +84,7 @@ public class ProductCommandService {
         eventPublisher.publishProductCreated(new ProductCreatedEvent(
             savedProduct.getProductId(),
             savedProduct.getUserId(),
-            savedProduct.getTitle(),
+            savedProduct.getName(),
             savedProduct.getCategory(),
             savedProduct.getPrice()
         ));
@@ -95,7 +99,7 @@ public class ProductCommandService {
         
         // 상품 정보 업데이트
         product.updateProduct(
-            request.getTitle(),
+            request.getName(),
             request.getDescription(),
             request.getCategory(),
             request.getPrice()
@@ -107,7 +111,7 @@ public class ProductCommandService {
         eventPublisher.publishProductUpdated(new ProductUpdatedEvent(
             updatedProduct.getProductId(),
             updatedProduct.getUserId(),
-            updatedProduct.getTitle(),
+            updatedProduct.getName(),
             updatedProduct.getCategory(),
             updatedProduct.getPrice()
         ));
@@ -168,7 +172,7 @@ public class ProductCommandService {
             .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " + productId));
         
         product.updateProduct(
-            request.getTitle(),
+            request.getName(),
             request.getDescription(),
             request.getCategory(),
             request.getPrice()

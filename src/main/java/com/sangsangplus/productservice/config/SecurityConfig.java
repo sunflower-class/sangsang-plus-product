@@ -53,6 +53,8 @@ public class SecurityConfig {
                     "/swagger-resources/**",
                     "/webjars/**"
                 ).permitAll()
+                // Product creation endpoint (for server-to-server communication)
+                .requestMatchers("POST", "/api/products").permitAll()
                 // Authenticated endpoints
                 .requestMatchers(
                     "/api/products/my/**"

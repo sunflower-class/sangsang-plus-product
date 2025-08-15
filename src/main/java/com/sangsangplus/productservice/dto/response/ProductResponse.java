@@ -8,29 +8,38 @@ import java.util.UUID;
 public class ProductResponse {
     private Long productId;
     private UUID userId;
-    private String title;
+    private String name;
     private String description;
     private String category;
     private BigDecimal price;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private List<ProductImageResponse> images;
+    private String brand;
+    private String source;
+    private String status;
+    private String metadata;
     
     // Constructors
     public ProductResponse() {}
     
-    public ProductResponse(Long productId, UUID userId, String title, String description, 
+    public ProductResponse(Long productId, UUID userId, String name, String description, 
                           String category, BigDecimal price, LocalDateTime createdAt, 
-                          LocalDateTime updatedAt, List<ProductImageResponse> images) {
+                          LocalDateTime updatedAt, List<ProductImageResponse> images,
+                          String brand, String source, String status, String metadata) {
         this.productId = productId;
         this.userId = userId;
-        this.title = title;
+        this.name = name;
         this.description = description;
         this.category = category;
         this.price = price;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.images = images;
+        this.brand = brand;
+        this.source = source;
+        this.status = status;
+        this.metadata = metadata;
     }
     
     // Builder pattern
@@ -41,13 +50,17 @@ public class ProductResponse {
     public static class ProductResponseBuilder {
         private Long productId;
         private UUID userId;
-        private String title;
+        private String name;
         private String description;
         private String category;
         private BigDecimal price;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
         private List<ProductImageResponse> images;
+        private String brand;
+        private String source;
+        private String status;
+        private String metadata;
         
         public ProductResponseBuilder productId(Long productId) {
             this.productId = productId;
@@ -60,8 +73,8 @@ public class ProductResponse {
         }
         
         
-        public ProductResponseBuilder title(String title) {
-            this.title = title;
+        public ProductResponseBuilder name(String name) {
+            this.name = name;
             return this;
         }
         
@@ -95,9 +108,30 @@ public class ProductResponse {
             return this;
         }
         
+        public ProductResponseBuilder brand(String brand) {
+            this.brand = brand;
+            return this;
+        }
+        
+        public ProductResponseBuilder source(String source) {
+            this.source = source;
+            return this;
+        }
+        
+        public ProductResponseBuilder status(String status) {
+            this.status = status;
+            return this;
+        }
+        
+        public ProductResponseBuilder metadata(String metadata) {
+            this.metadata = metadata;
+            return this;
+        }
+        
         public ProductResponse build() {
-            return new ProductResponse(productId, userId, title, description, 
-                                     category, price, createdAt, updatedAt, images);
+            return new ProductResponse(productId, userId, name, description, 
+                                     category, price, createdAt, updatedAt, images,
+                                     brand, source, status, metadata);
         }
     }
     
@@ -119,12 +153,12 @@ public class ProductResponse {
     }
     
     
-    public String getTitle() {
-        return title;
+    public String getName() {
+        return name;
     }
     
-    public void setTitle(String title) {
-        this.title = title;
+    public void setName(String name) {
+        this.name = name;
     }
     
     public String getDescription() {
@@ -173,5 +207,37 @@ public class ProductResponse {
     
     public void setImages(List<ProductImageResponse> images) {
         this.images = images;
+    }
+    
+    public String getBrand() {
+        return brand;
+    }
+    
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+    
+    public String getSource() {
+        return source;
+    }
+    
+    public void setSource(String source) {
+        this.source = source;
+    }
+    
+    public String getStatus() {
+        return status;
+    }
+    
+    public void setStatus(String status) {
+        this.status = status;
+    }
+    
+    public String getMetadata() {
+        return metadata;
+    }
+    
+    public void setMetadata(String metadata) {
+        this.metadata = metadata;
     }
 }

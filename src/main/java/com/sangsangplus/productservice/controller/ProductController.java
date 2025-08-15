@@ -33,6 +33,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import com.sangsangplus.productservice.util.UuidValidator;
 
 @RestController
 @RequestMapping("/api/products")
@@ -122,27 +123,39 @@ public class ProductController {
     
     // Command endpoints - 인증 필요
     @PostMapping
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    @Operation(summary = "상품 등록", description = "새로운 상품을 등록합니다", 
-               security = @SecurityRequirement(name = "bearerAuth"))
+    @Operation(summary = "상품 등록", description = "새로운 상품을 등록합니다 (서버간 통신용)")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "상품 등록 성공"),
-        @ApiResponse(responseCode = "400", description = "잘못된 요청 데이터"),
-        @ApiResponse(responseCode = "401", description = "인증 필요")
+        @ApiResponse(responseCode = "400", description = "잘못된 요청 데이터")
     })
     public ResponseEntity<ProductResponse> createProduct(
-            @Parameter(hidden = true) @AuthenticationPrincipal UUID userId,
             @Parameter(description = "상품 등록 정보") @Valid @RequestBody ProductCreateRequest request,
             HttpServletRequest httpRequest) {
         
         logger.info("=== CREATE PRODUCT REQUEST START ===");
-        logger.info("User ID from @AuthenticationPrincipal: {}", userId);
         logger.info("Request body: {}", request);
         
-        // 헤더 정보 로깅
-        logger.info("X-User-Id header: {}", httpRequest.getHeader("X-User-Id"));
-        logger.info("X-User-Role header: {}", httpRequest.getHeader("X-User-Role"));
-        logger.info("Authorization header: {}", httpRequest.getHeader("Authorization"));
+        // 헤더에서 user_id 추출 및 검증 (서버간 통신용)
+        String userIdHeader = httpRequest.getHeader("X-User-Id");
+        UUID userId = null;
+        
+        if (userIdHeader != null && !userIdHeader.trim().isEmpty()) {
+            String trimmedUserId = userIdHeader.trim();
+            logger.info("Received X-User-Id header: '{}'", trimmedUserId);
+            
+            // UUID 형식 검증 및 파싱
+            if (UuidValidator.isValidUuid(trimmedUserId)) {
+                userId = UuidValidator.parseUuid(trimmedUserId);
+                logger.info("Successfully parsed User ID: {}", userId);
+            } else {
+                logger.error("Invalid UUID format in X-User-Id header: '{}'", trimmedUserId);
+                return ResponseEntity.badRequest().body(null);
+            }
+        } else {
+            logger.warn("X-User-Id header is missing or empty");
+            // user_id가 없어도 요청을 처리할지, 에러를 반환할지는 비즈니스 요구사항에 따라 결정
+            // 현재는 null로 처리하여 서비스에서 판단하도록 함
+        }
         
         try {
             ProductResponse response = commandService.createProduct(userId, null, request);

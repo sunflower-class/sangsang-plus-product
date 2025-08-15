@@ -5,9 +5,9 @@ import java.math.BigDecimal;
 
 public class ProductUpdateRequest {
     
-    @NotBlank(message = "제목은 필수입니다")
-    @Size(max = 255, message = "제목은 255자를 초과할 수 없습니다")
-    private String title;
+    @NotBlank(message = "상품명은 필수입니다")
+    @Size(max = 255, message = "상품명은 255자를 초과할 수 없습니다")
+    private String name;
     
     private String description;
     
@@ -20,23 +20,29 @@ public class ProductUpdateRequest {
     @Digits(integer = 8, fraction = 2, message = "가격 형식이 올바르지 않습니다")
     private BigDecimal price;
     
+    private String brand;
+    
+    private String status;
+    
     // Constructors
     public ProductUpdateRequest() {}
     
-    public ProductUpdateRequest(String title, String description, String category, BigDecimal price) {
-        this.title = title;
+    public ProductUpdateRequest(String name, String description, String category, BigDecimal price, String brand, String status) {
+        this.name = name;
         this.description = description;
         this.category = category;
         this.price = price;
+        this.brand = brand;
+        this.status = status;
     }
     
     // Getters and Setters
-    public String getTitle() {
-        return title;
+    public String getName() {
+        return name;
     }
     
-    public void setTitle(String title) {
-        this.title = title;
+    public void setName(String name) {
+        this.name = name;
     }
     
     public String getDescription() {
@@ -61,5 +67,21 @@ public class ProductUpdateRequest {
     
     public void setPrice(BigDecimal price) {
         this.price = price;
+    }
+    
+    public String getBrand() {
+        return brand;
+    }
+    
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+    
+    public String getStatus() {
+        return status;
+    }
+    
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
