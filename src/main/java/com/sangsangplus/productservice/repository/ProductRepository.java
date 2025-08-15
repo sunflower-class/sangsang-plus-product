@@ -24,9 +24,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     // 사용자와 카테고리로 상품 조회
     List<Product> findByUserIdAndCategory(UUID userId, String category);
     
-    // 제목 또는 설명으로 검색 (대소문자 구분 없음)
+    // 이름 또는 설명으로 검색 (대소문자 구분 없음)
     @Query("SELECT p FROM Product p WHERE " +
-           "LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
            "LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     Page<Product> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
     
