@@ -2,7 +2,6 @@ package com.sangsangplus.productservice.service.query;
 
 import com.sangsangplus.productservice.domain.entity.Product;
 import com.sangsangplus.productservice.dto.response.PageResponse;
-import com.sangsangplus.productservice.dto.response.ProductImageResponse;
 import com.sangsangplus.productservice.dto.response.ProductResponse;
 import com.sangsangplus.productservice.exception.ProductNotFoundException;
 import com.sangsangplus.productservice.repository.ProductRepository;
