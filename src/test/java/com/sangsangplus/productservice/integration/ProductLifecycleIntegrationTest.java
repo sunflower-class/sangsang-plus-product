@@ -58,7 +58,7 @@ public class ProductLifecycleIntegrationTest {
     void testProductLifecycle_CreateAndDelete() throws Exception {
         // Given: 상품 생성 요청 데이터
         ProductCreateRequest createRequest = new ProductCreateRequest();
-        createRequest.setTitle("테스트 노트북");
+        createRequest.setName("테스트 노트북");
         createRequest.setDescription("통합 테스트용 노트북입니다");
         createRequest.setCategory("전자제품");
         createRequest.setPrice(new BigDecimal("1500000"));
@@ -76,7 +76,7 @@ public class ProductLifecycleIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(createRequestJson))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.title").value("테스트 노트북"))
+                .andExpect(jsonPath("$.name").value("테스트 노트북"))
                 .andExpect(jsonPath("$.category").value("전자제품"))
                 .andExpect(jsonPath("$.price").value(1500000))
                 .andReturn();
@@ -92,7 +92,7 @@ public class ProductLifecycleIntegrationTest {
         // 데이터베이스에서 직접 확인
         Product savedProduct = productRepository.findById(productId).orElse(null);
         assertNotNull(savedProduct, "상품이 데이터베이스에 저장되어야 함");
-        assertEquals("테스트 노트북", savedProduct.getTitle());
+        assertEquals("테스트 노트북", savedProduct.getName());
         assertEquals(TEST_USER_ID, savedProduct.getUserId());
 
         // When: 생성된 상품 조회
@@ -100,7 +100,7 @@ public class ProductLifecycleIntegrationTest {
         mockMvc.perform(get("/api/products/" + productId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.productId").value(productId))
-                .andExpect(jsonPath("$.title").value("테스트 노트북"))
+                .andExpect(jsonPath("$.name").value("테스트 노트북"))
                 .andExpect(jsonPath("$.userId").value(TEST_USER_ID.toString()));
 
         // When: 상품 삭제 API 호출
@@ -126,7 +126,7 @@ public class ProductLifecycleIntegrationTest {
     void testUnauthorizedAccess() throws Exception {
         // Given: X-User-Id 헤더 없이 상품 생성 시도
         ProductCreateRequest createRequest = new ProductCreateRequest();
-        createRequest.setTitle("무단 접근 테스트");
+        createRequest.setName("무단 접근 테스트");
         createRequest.setDescription("인증 없는 요청");
         createRequest.setCategory("테스트");
         createRequest.setPrice(new BigDecimal("100000"));
@@ -147,7 +147,7 @@ public class ProductLifecycleIntegrationTest {
     void testAdminAccess() throws Exception {
         // Given: 일반 사용자가 상품 생성
         ProductCreateRequest createRequest = new ProductCreateRequest();
-        createRequest.setTitle("관리자 테스트 상품");
+        createRequest.setName("관리자 테스트 상품");
         createRequest.setDescription("관리자 권한 테스트용");
         createRequest.setCategory("테스트");
         createRequest.setPrice(new BigDecimal("200000"));
